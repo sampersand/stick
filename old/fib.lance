@@ -1,0 +1,43 @@
+fn fibprint         # function called `fib`
+	dup 0
+	push 3
+	mod # dup top of stack, push 3, modulo
+
+	~0 $3 %        # duplicate top of stack, push 3, modulo
+	Zfib3          # if modulo is zero, jump to fib3
+	~0 $5 %        # duplicate top of stack, push 5, modulo
+	Zfib5          # if modulo is zero, jump to fib5
+	P              # print top of stack
+	Jfibret        # goto fib ret
+
+:fib3             # label called `fib3`
+	$Fizz P        # push Fizz, print it out.
+	~0 $5 %        # duplicate top of stack, push 5, modulo
+	Zfib5          # if modulo is zero, jump to fib3
+	!0             # pop the top of the stack
+	Jfibret        # goto fibret
+
+:fib5
+	$Buzz P        # push buzz, and print it.
+	!0              # pop the top of the stack
+	               # fallthrough
+:fibret
+	$"\n" P
+	R
+
+:fizzbuzz
+	$1             # push 1
+:fibloop
+	~1 ~1 -        # push both the top two elements, and then compare
+	Zfibdone       # if they're equal, go to fibdone
+	Cfibprint      # call fibprint (with the argument being top of stack)
+	$1 +           # add one to the top of the stack
+	Jfibloop       # restart the loop
+:fibdone
+	!0 !0          # pop, pop
+	R              # return
+
+:main
+	$100           # push 100
+	Cfizzbuzz      # call fizzbuzz
+	R              # return

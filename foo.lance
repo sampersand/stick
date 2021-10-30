@@ -1,0 +1,19 @@
+fn start
+  jmp foo
+  push 1
+  ret
+:foo
+  push 2
+  ret
+  
+# fn push4
+#   push 4
+# 
+# fn start
+#   call push4
+#   #push 4
+#   push 9
+#   add
+#   push '9+4='
+#   cat
+#   print
