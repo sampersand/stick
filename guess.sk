@@ -1,0 +1,22 @@
+((include 'prelude.sk'))
+:getline { rand 101 % } def
+
+:respond {
+	dup2 swap <=>
+	dup { pos? "Too•small!" "Too•large!" ifl } { pop 0 } if
+} def
+
+100 ( maximum value )
+dup
+"Pick•a•number•from•1-" swap . println
+rand swap % 1+
+
+0
+swap
+{
+	swap 1+ swap
+	getline respond dup
+} { println } while
+pop
+pop
+"It•took•you•" swap "•attempts!" . . println

@@ -1,0 +1,29 @@
+:fizzbuzz_inner {
+  dup 15 %
+    { "FizzBuzz" }
+    {
+      dup 3 %
+        { "Fizz" }
+        {
+          dup 5 %
+            { "Buzz" }
+            { dup }
+            if
+        }
+        if
+    }
+    if
+} def
+
+:fizzbuzz {
+  0
+  { dup2 dup2 ≤ }
+  {
+    1+
+    fizzbuzz_inner
+    println
+  }
+  while
+} def
+
+100 fizzbuzz

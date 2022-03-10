@@ -1,0 +1,36 @@
+ ( 
+ :<missing> {
+	dup
+	0 get "'" eq 
+	{ split dup 0 del "\s" join print }
+	{ "unknown•variable:•" swap . throw } if
+} def
+
+"abcdef" -1 09 substr print 0 quit
+[ 1 2 3 ] "" { "\s" . . } reduce	dbgs
+
+"Abc" split print
+__END__
+0 quit
+:Å :alias alias
+:d :dup Å
+:D :dupn Å
+:p :pop Å
+:P :popn Å
+
+:π :print Å
+:∏ :println Å
+
+:A :a2b Å
+:B :b2a Å
+:∂ :def Å
+
+:I :if Å
+:W :while Å
+:| :|| Å
+
+:fibprint { 0 A d 3 % { B p 1 A "Fizz" π
+} | d 5 % { B p 1 A "Buzz" π } | B :p :π
+I "" ∏ } ∂ :fb { 0 { 2 D 2 D > } { 1 + d
+fibprint } W } ∂ 100 fb
+ ) 

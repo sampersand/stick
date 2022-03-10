@@ -1,0 +1,5 @@
+:hnew { 0 alloc } def
+:hset {
+	
+} def
+dup "a" 3 hset

@@ -1,0 +1,14 @@
+enum Value {
+	num,
+	str,
+	Group: [Value],
+	Symbol: str,
+	Function: str
+}
+
+enum Option_Value {
+	Some: Value,
+	None: void
+}
+
+externf Value.dump: fn(Value): str

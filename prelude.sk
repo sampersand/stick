@@ -1,0 +1,18 @@
+:dup { 1 dupn } def
+:dup2 { 2 dupn } def
+:dup3 { 3 dupn } def
+
+:pop { 1 popn } def
+:swap { dup2 pop3 } def
+
+:1+ { 1 + } def
+:1- { 1 - } def
+:println { "\n" . print } def
+:defl { 1 wrapn def } def
+:; { } def
+
+:pos? { 0 > } def
+:neg? { 0 < } def
+:zero? { 0 = } def
+:void { } def
+

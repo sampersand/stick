@@ -1,0 +1,14 @@
+import "stream.lc"
+import "value.lc"
+
+fn main() : num {
+	let s = Stream_new("1 2 + 'hello' . println")
+
+	switch s.next() {
+		case v: Option_Value::Some {
+			do println(v._.dump())
+		}
+	}
+
+	return 0
+}

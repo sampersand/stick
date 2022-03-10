@@ -1,0 +1,140 @@
+:dup { 1 dupn } def
+:dup2 { 2 dupn } def
+:dup3 { 3 dupn } def
+:pop { 1 popn } def
+:pop2 { 2 popn } def
+:pop3 { 3 popn } def
+:swap { dup2 pop3 } def
+:rot { 3 rotn } def
+:rotr { rot rot } def
+:rotn { dup a2b dupn b2a 1+ popn } def
+
+:1+ { 1 + } def
+:1- { 1 - } def
+
+:defl { 1 wrapn def } def
+:alias { fetch def } def
+:ifl { rot :pop :pop2 if } def
+:unless { swap if } def
+:switch {
+	dup len 1+ a2b
+	explode
+	dupb rotn
+	{ dupb 1 gt }
+	{
+		dup dupb 1+ rotn call
+		dupb rotn swap
+		b2a 2 - a2b
+		{
+			b2a 1+ swap a2b 
+			{ 1- dup } :pop2 while
+			pop b2a
+			call
+			2 ret
+		} :pop if
+	} while
+} def
+
+:false 0 defl
+:true 1 defl
+:!! { ! ! } def
+
+:& { !! swap !! * } def
+:| { ! swap ! * ! } def
+
+:&& { { } if } def
+:|| { { } unless } def
+
+:popb { b2a pop } def
+:dupb { b2a dup a2b } def
+
+:[] { 0 alloc } def
+:apush { dup2 a2b dup2 len swap set b2a } def
+:apop  { dup dup len 1- del } def
+:[ { stacklen a2b } def
+:] {
+	stacklen b2a - 1+
+	[] a2b
+	{ 1- dup } { swap b2a swap apush a2b } while
+	pop
+	b2a rev
+} def
+
+
+:map {
+	dup2 len alloc a2b
+	0
+	{ dup 4 dupn len < }
+	{
+		dup3 dup2 get dup3 call
+		dupb dup3 rot set
+		1+
+	} while
+	pop pop pop
+	b2a
+} def
+
+:select {
+	[] a2b
+	0
+	{ dup 4 dupn len < }
+	{
+		dup3 dup2 get
+		dup 4 dupn call
+		{ b2a swap apush a2b } { pop } if
+		1+
+	} while
+	pop pop pop
+	b2a
+} def
+
+:reduce {
+	0
+	{ dup 5 dupn len < }
+	{
+		dup a2b
+		4 dupn swap get
+		dup3 swap dup3 call
+		swap pop3
+		b2a 1+
+	} while
+	pop pop
+	pop2
+} def
+
+:join { "" :. reduce } def
+:sum { 0 :+ reduce } def 
+
+:upto { 
+	swap 1- swap
+	[]
+	{ dup3 dup3 < } {
+		rot 1+ swap dup2 apush swap rot
+		rot
+	} while
+	a2b
+	pop
+	pop
+	b2a
+} def
+
+:explode {
+	dup len a2b
+	{ dupb }
+	{
+		dup dup len
+		b2a 1- dup a2b
+		- 1-
+		get
+		swap
+	} while
+	popb
+	pop
+} def
+
+:foreach* {
+	swap 0
+	{ dup dup3 len < } { dup2 dup2 get 4 dupn call 1+ } while
+	pop pop2
+} def
+:foreach { foreach* pop } def

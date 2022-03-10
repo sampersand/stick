@@ -1,0 +1,24 @@
+import 'value.lch'
+
+fn Value.dump(): str {
+	switch self {
+		case n: Value::num { return "Scalar(" + n._.to_str() + ")" }
+		case s: Value::str { return "Scalar(" + s._ + ")" }
+		case g: Value::Group {
+			let grp = "Group("
+			let i = 0
+			while i < g._.len() {
+				if i != 0 {
+					set grp = grp + ", "
+				}
+				set grp = grp + g._[i].dump()
+				set i = i + 1
+			}
+			return grp + ")"
+		}
+		case y: Value::Symbol { return "Symbol(" + y._ + ")" }
+		case f: Value::Function { return "Function(" + f._ + ")" }
+	}
+
+	do panic("invalid")
+}

@@ -1,0 +1,42 @@
+((include 'list.sk'))
+
+:*old `* def
+:* {
+	dup kindof "ary" eq
+	{
+		dup2 0 get "*" . dup def?
+		{ fetch call }
+		{ "Unknown•function•name•'" swap . abort }
+		if
+	}
+	{ *old }
+	if
+} def
+
+:Fraction { swap [ "Fraction" ] swap apush swap apush } def
+:Fraction_numer { 1 get } def
+:Fraction_denom { 2 get } def
+:Fraction_str { dup Fraction_numer "/" . swap Fraction_denom . } def
+:Fraction* {
+	dup Fraction_numer dup3 Fraction_numer *
+	dup2 Fraction_denom 4 dupn Fraction_denom *
+	Fraction
+	pop2
+	pop2
+} def
+
+1 2 Fraction
+3 4 Fraction
+*
+Fraction_str println
+__END__
+:Person { [] swap apush swap apush } def
+:Person_age { 0 get } def
+:Person_name { 1 get } def
+:Person_str { dup Person_name ",•aged•" . swap Person_age . } def
+
+:john "John" 40 Person defl
+john Person_age println
+john Person_name println
+john Person_str println
+

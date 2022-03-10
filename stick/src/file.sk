@@ -1,0 +1,45 @@
+eq print
+0 quit
+
+(
+:<=>* { dup2 dup2 <=> } def
+
+0 ( amnt of guesses )
+45 ( secret number )
+3
+rot
+dumpa
+__END__
+{
+	gets ( read input )
+	<=>* ( compare the top two values as ints )
+	0 ≠ ( check to make sure the comparison isn't zero )
+}
+{
+	rot 1+ rot* ( add one to the amnt of guesses )
+	[
+	]
+} while
+)
+( :fibprint {
+	0 a2b
+
+	dup 3 % { popb 1 a2b "Fizz" print } ||
+	dup 5 % { popb 1 a2b "Buzz" print } ||
+
+	b2a { pop } { print } if
+	"" println
+} def
+
+:fib {
+	0
+	{ dup2 dup2 > }
+	{
+		1+
+		dup
+		fibprint
+	}
+	while
+} def
+
+100 fib )

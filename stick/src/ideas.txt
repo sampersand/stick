@@ -1,0 +1,30 @@
+:eq2 ( A B C D -> bool ) {
+	rot eq rotr eq &
+} def
+
+
+add ( str str eq2 -> str | num num eq2 -> num )
+
+add (
+	STR STR eq2 -> STR
+	NUM NUM eq2 -> NUM
+) {
+	dup kindof "str" eq
+	{ . ( concat ) } { + } if
+}
+
++ (
+	dup2 dup2 STR = swap STR = & -> STR
+	dup2 dup2 NUM = swap NUM = & -> NUM
+)
+
+
+
+:ifc {
+
+}
+
++ (
+	STR = swap STR = -> STR
+	NUM = swap NUM = -> NUM
+)

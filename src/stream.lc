@@ -1,0 +1,75 @@
+import 'stream.lch'
+
+fn Stream_new(str): Stream {
+	return Stream { str, idx: 0 }
+}
+
+fn priv Stream.peek(): str {
+	if self.idx < self.str.len() {
+		return self.str[self.idx]
+	}
+
+	return ""
+}
+
+fn priv Stream.advance() {
+	set self.idx = self.idx + 1
+}
+
+fn priv str.isspace(): bool {
+	return (self == ' ') || (self == "\r") || (self == "\n") || (self == "\t")
+}
+
+enum Option_Value { Some: Value, None: void }
+
+fn priv Stream.next_token(): str {
+	let val = ""
+
+	loop {
+		let c = self.peek()
+		if c == "" {
+			break
+		}
+
+		do self.advance()
+
+		if c.isspace() {
+			if val == "" {
+				continue
+			}
+
+			break
+		}
+
+		set val = val + c
+	}
+
+	return val
+}
+
+fn priv str.isdigit(): bool {
+	return ('0' <= self) && (self <= '9')
+}
+
+fn Stream.next(): Option_Value {
+	let tkn = self.next_token()
+
+	if tkn == "" {
+		return Option_Value::None{}
+	}
+
+	let i = 0
+	while (i < tkn.len()) && tkn[i].isdigit() {
+		set i = i + 1
+	}
+
+	if i == tkn.len() {
+		let v1 = Value::num { _: tkn.to_num() }
+		return Option_Value::Some{ _: v1 }
+	}
+
+	if tkn[0] == '"' || tkn[0] == ''
+
+	let v = Value::Function { _: tkn }
+	return Option_Value::Some{ _: v }
+}

@@ -1,0 +1,6 @@
+import 'value.lch'
+
+struct Stream { str, idx: num }
+
+externf Stream_new: fn(str): Stream
+externf Stream.next: fn(Stream, str): Option_Value

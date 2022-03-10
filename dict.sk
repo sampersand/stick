@@ -1,0 +1,6 @@
+:[[ { stacklen a2b } def
+:=> :void alias
+:]] { dbgstack } def
+
+[[ 'a' => 34
+	'b' => 45 ]]

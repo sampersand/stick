@@ -1,0 +1,46 @@
+:$ '$' defl
+:add $ :a :b :c {
+	a b + 
+} bind
+
+dbgstack
+0 quit
+:defb {
+	$ :func {
+		[] a2b
+
+		{ dup '$' ne }
+		{ b2a swap apush a2b }
+		while
+
+		b2a rev
+		expand
+		func
+		dbgstack
+		0 quit
+	} bind
+} def
+
+:add $ :a :b :c { a b + } defb
+(
+((include 'list.sk'))
+:even? { 2 % ! } def
+:ary 0 9 upto defl
+
+:Person { [] swap apush swap apush } def
+:Person_age { 0 get } def
+:Person_name { 1 get } def
+:Person_str { dup Person_name ",•aged•" . swap Person_age . } def
+
+:john "John" 40 Person defl
+john Person_age println
+john Person_name println
+john Person_str println
+
+ary
+{ pop rand 1000 % } map
+{ pop 4 } map
+{ even? } select
+sum
+println
+)

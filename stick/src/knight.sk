@@ -1,0 +1,70 @@
+:dbg { dumpa 0 quit } def
+:peek { dup 0 get } def
+:advance { 1 dup2 len 1- substr } def
+
+:isdigit { dup 0 ge swap 9 le & } def
+:islower { dup "_" eq swap dup "a" le swap "z" ge & | } def
+:isupper { dup "_" eq swap dup "A" le swap "Z" ge & | } def
+
+:take-while {
+	dbga
+	println
+} def
+
+"AB_C123" :isupper take-while
+__END__
+:parse-number {
+	"" a2b
+
+	{ peek dup isdigit }
+	{ b2a swap dumpa 0 quit . a2b advance }
+	while
+
+	pop b2a
+} def
+:parse-identifier {
+	"" a2b
+	{ peek dup islower dup isdigit | }
+	{ }
+}
+
+:parse {
+	peek
+	[
+		:isdigit :parse-number
+		:islower :parse-identifier
+	] switch
+} def
+
+"123a" parse dumpa
+
+__END__
+:to-string {
+	explode swap [
+		{ "n" eq } { ( itself ) }
+		{ "s" eq } { ( itself ) }
+		{ "c" eq } {
+			[
+				{ "T" eq } { "true" }
+				{ "F" eq } { "false" }
+				{ "N" eq } { "null" }
+			] switch
+		}
+	] switch
+} def
+
+:to-number {
+	explode swap [
+		{ "n" eq } { ( itself ) }
+		{ "s" eq } { 0 + }
+		{ "c" eq } { "T" eq }
+	] switch
+} def
+
+:to-boolean {
+	explode swap [
+		{ "n" eq } { 0 = }
+		{ "s" eq } { "" ne }
+		{ "c" eq } { "T" eq }
+	] switch
+} def
