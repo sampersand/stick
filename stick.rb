@@ -49,6 +49,7 @@ class Environment
     self['abort'] = proc { abort pops }
     self['call'] = proc { pop.(self) }
     self['fetch'] = proc { push self[pops] }
+    self['var'] = proc { push Token::Variable.new pops }
     self['if'] = proc {
       cond, ift, iff = pop 3
       (cond.to_b ? ift : iff).(self)
@@ -79,6 +80,7 @@ class Environment
     self['kindof'] = proc { push Hash[Integer => 'val', String => 'val',
       Token::Variable => 'var', Token::Group => 'grp', Array => 'ary'][pop.class] }
     self['wrapn'] = proc { push Token::Group.new pop popi }
+    self['blockn'] = proc { p pop.is_a? Token::Group; exit ; push Token::Group.new pop popi }
     self['unwrap'] = proc { @stack.concat pop.data }
 
     # stuff that could be written natively
@@ -102,7 +104,7 @@ class Environment
     self['split'] = proc { str, split = pop 2; push str.to_s.split split.to_s }
     self['join'] = proc { ary, glue = pop 2; push ary.join(glue) }
 
-    self['bind'] = proc {
+    self['__bad_bind'] = proc {
       body = pop
       old = {}
       while (name = pop) != '$'

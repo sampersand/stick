@@ -1,0 +1,67 @@
+((include 'prelude.sk'))
+
+:implode {
+	[]
+	$ :_implode_ary {
+		{ dup }
+		{ 1- _implode_ary rot apush }
+		while
+		pop
+		_implode_ary
+		rev
+	} bind
+} def
+
+:[ { stacklen a2b } def
+:] { stacklen b2a - implode } def
+
+"X" [ "A" "B" "C" "D" "E" ] dbgstack
+
+:foreach $ :_foreach_ary :_foreach_fn {
+	0
+	{ dup _foreach_ary len ≠ }
+	{
+		a2b _foreach_ary dupb get
+		_foreach_fn call
+		b2a 1+
+	} while
+	pop
+} defb
+
+:map $ :_map_ary :_map_fn {
+	[] _map_ary { _map_fn call apush* } foreach
+} defb
+
+:select $ :_select_ary :_select_fn {
+	[] _select_ary { dup _select_fn call { apush* } { pop } if } foreach
+} defb
+
+:reduce {
+	rot' swap rot foreach
+} def
+
+
+:sum { 0 { + } reduce } def 
+:join { "" join-with } def
+:join-with $ :_join-with_sep {
+	"" { _join-with_sep . . } reduce
+} defb
+
+:upto {
+	swap 1- swap
+	[]
+	{ dup3 dup3 < } {
+		rot 1+ swap dup2 apush* swap rot
+		rot
+	} while
+	a2b
+	pop
+	pop
+	b2a
+} def
+
+:expand {
+	rev
+	{ dup len } { apop swap } while
+	pop
+} def

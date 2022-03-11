@@ -10,7 +10,7 @@ dbgstack
 		[] a2b
 
 		{ dup '$' ne }
-		{ b2a swap apush a2b }
+		{ b2a swap apush* a2b }
 		while
 
 		b2a rev
@@ -27,7 +27,7 @@ dbgstack
 :even? { 2 % ! } def
 :ary 0 9 upto defl
 
-:Person { [] swap apush swap apush } def
+:Person { [] swap apush* swap apush* } def
 :Person_age { 0 get } def
 :Person_name { 1 get } def
 :Person_str { dup Person_name ",•aged•" . swap Person_age . } def

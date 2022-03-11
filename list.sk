@@ -1,5 +1,6 @@
 :[] { 0 alloc } def
-:apush { dup2 a2b dup2 len swap set b2a } def
+:apush* { dup2 a2b dup2 len swap set b2a } def
+:apush { apush pop } def
 :apop  { dup dup len 1- del } def
 :1+ { 1 + } def
 
@@ -8,7 +9,7 @@
 :] {
 	stacklen b2a - 1+
 	[] a2b
-	{ 1- dup } { swap b2a swap apush a2b } while
+	{ 1- dup } { swap b2a swap apush* a2b } while
 	pop
 	b2a rev
 } def
@@ -36,7 +37,7 @@
 	{
 		dup3 dup2 get
 		dup 4 dupn call
-		{ b2a swap apush a2b } { pop } if
+		{ b2a swap apush* a2b } { pop } if
 		1+
 	} while
 	pop pop pop
@@ -64,7 +65,7 @@
 	swap 1- swap
 	[]
 	{ dup3 dup3 < } {
-		rot 1+ swap dup2 apush swap rot
+		rot 1+ swap dup2 apush* swap rot
 		rot
 	} while
 	a2b
