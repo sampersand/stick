@@ -1,16 +1,15 @@
-#!ruby
 require 'forwardable'
 
 class Environment
   extend Forwardable
 
   attr_reader :stack, :vars
-
   def initialize
     @stack = []
     @stack2 = []
     @vars = {}
 
+    self['$'] = proc { push :'$' }
     self['+'] = proc { push popn(1).to_i + popi }
     self['.'] = proc { push popn(1).to_s + pops }
     self['-'] = proc { push popn(1).to_i - popi }
@@ -110,7 +109,6 @@ class Environment
     self['read-file'] = proc { push open(pops, &:read) }
     self['split'] = proc { str, split = pop 2; push str.to_s.split split.to_s }
     self['join'] = proc { ary, glue = pop 2; push ary.join(glue) }
-    self['apush\''] = proc { p _1; exit }
 
     self['__bad_bind'] = proc {
       body = pop
@@ -273,10 +271,7 @@ class Parser
 end
 
 e = Environment.new
-# Parser.new(open(File.join(__dir__, 'prelude.sk'), &:read)).grp.(e)
-# Parser.new(open(File.join(__dir__, 'list.sk'), &:read)).grp.(e)
+Parser.new(open(File.join(__dir__, 'prelude.sk'), &:read)).grp.(e)
+Parser.new(open(File.join(__dir__, 'list.sk'), &:read)).grp.(e)
 $*.unshift '/dev/stdin' if $*.empty?
 Parser.new(open($*.shift, &:read)).grp.(e) #rescue puts "error: #$!"
-# Parser.new(<<EOS).grp.(e)
-# 1 2 - println
-# EOS

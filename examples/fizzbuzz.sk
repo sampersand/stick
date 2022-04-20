@@ -1,0 +1,35 @@
+((include 'prelude.sk'))
+((include 'list.sk'))
+
+( define the function "divides" )
+:divides { % ! } def
+
+:fizzbuzz {
+	1
+	( >' is the same as > but it doesnt pop off the stack )
+	{ >' } {
+		[
+			{ dup 15 divides } { "FizzBuzz" }
+			{ dup 3 divides } { "Fizz" }
+			{ dup 5 divides } { "Buzz" }
+			default { dup }
+		] switch println
+		1+
+	} while
+} def
+
+:divides* { "dup" var swap "%" var "!" var 4 wrapn } def
+:fizzbuzz* {
+	1
+	{ >' } {
+		[
+			15 divides* { "FizzBuzz" }
+			3 divides* { "Fizz" }
+			5 divides* { "Buzz" }
+			default { dup }
+		] switch println
+		1+
+	} while
+} def
+
+100 fizzbuzz*

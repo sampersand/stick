@@ -49,13 +49,13 @@
 :dupb { b2a dup a2b } def
 
 :[] { 0 alloc } def
-:apush* { dup2 a2b dup2 len swap set b2a } def
+:apush' { dup2 a2b dup2 len swap set b2a } def
 :apop  { dup dup len 1- del } def
 :[ { stacklen a2b } def
 :] {
 	stacklen b2a - 1+
 	[] a2b
-	{ 1- dup } { swap b2a swap apush* a2b } while
+	{ 1- dup } { swap b2a swap apush' a2b } while
 	pop
 	b2a rev
 } def
@@ -64,7 +64,7 @@
 :map {
 	dup2 len alloc a2b
 	0
-	{ dup 4 dupn len < }
+	{ dup dup4 len < }
 	{
 		dup3 dup2 get dup3 call
 		dupb dup3 rot set
@@ -77,11 +77,11 @@
 :select {
 	[] a2b
 	0
-	{ dup 4 dupn len < }
+	{ dup dup4 len < }
 	{
 		dup3 dup2 get
-		dup 4 dupn call
-		{ b2a swap apush* a2b } { pop } if
+		dup dup4 call
+		{ b2a swap apush' a2b } { pop } if
 		1+
 	} while
 	pop pop pop
@@ -93,7 +93,7 @@
 	{ dup 5 dupn len < }
 	{
 		dup a2b
-		4 dupn swap get
+		dup4 swap get
 		dup3 swap dup3 call
 		swap pop3
 		b2a 1+
@@ -109,7 +109,7 @@
 	swap 1- swap
 	[]
 	{ dup3 dup3 < } {
-		rot 1+ swap dup2 apush* swap rot
+		rot 1+ swap dup2 apush' swap rot
 		rot
 	} while
 	a2b
@@ -132,9 +132,9 @@
 	pop
 } def
 
-:foreach* {
+:foreach' {
 	swap 0
-	{ dup dup3 len < } { dup2 dup2 get 4 dupn call 1+ } while
+	{ dup dup3 len < } { dup2 dup2 get dup4 call 1+ } while
 	pop pop2
 } def
-:foreach { foreach* pop } def
+:foreach { foreach' pop } def

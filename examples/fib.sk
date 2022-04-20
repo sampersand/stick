@@ -1,0 +1,11 @@
+((include 'prelude.sk'))
+
+:fib {
+	dup 1 le {
+		1- dup fib
+		swap 1- fib
+		+
+	} ||
+} def
+
+10 fib println

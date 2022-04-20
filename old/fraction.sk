@@ -13,7 +13,7 @@
 	if
 } def
 
-:Fraction { swap [ "Fraction" ] swap apush* swap apush* } def
+:Fraction { swap [ "Fraction" ] swap apush' swap apush' } def
 :Fraction_numer { 1 get } def
 :Fraction_denom { 2 get } def
 :Fraction_str { dup Fraction_numer "/" . swap Fraction_denom . } def
@@ -30,7 +30,7 @@
 *
 Fraction_str println
 __END__
-:Person { [] swap apush* swap apush* } def
+:Person { [] swap apush' swap apush' } def
 :Person_age { 0 get } def
 :Person_name { 1 get } def
 :Person_str { dup Person_name ",•aged•" . swap Person_age . } def

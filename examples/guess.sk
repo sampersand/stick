@@ -1,0 +1,26 @@
+((include 'prelude.sk'))
+((include 'list.sk'))
+
+:getline { rand 101 % } def
+
+:guessing-game {
+	dup "Pick•a•number•from•1-" swap . println
+	rand swap % 1+
+
+	0 swap
+	
+	{
+		swap 1+ swap
+		dup getline <=>
+		[
+			{ -1 = } { "Too•small!" }
+			{ 1 = } { "Too•large!" }
+			default { false }
+		] switch
+		dup
+	} { println } while
+	pop
+	"Perfect!•It•took•you•" swap . "•tries" . println
+} def
+
+100 guessing-game 

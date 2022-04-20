@@ -12,10 +12,16 @@
 	} bind
 } def
 
+:apush' { dup2 a2b dup2 len swap set b2a } def
+:apush { apush pop } def
+:apop  { dup dup len 1- del } def
+
 :[ { stacklen a2b } def
 :] { stacklen b2a - implode } def
 
-"X" [ "A" "B" "C" "D" "E" ] dbgstack
+( assumes value is positive )
+:aoob { swap len ≥ } def
+:aoob' { dup2 dup2 aoob } def
 
 :foreach $ :_foreach_ary :_foreach_fn {
 	0
@@ -29,15 +35,15 @@
 } defb
 
 :map $ :_map_ary :_map_fn {
-	[] _map_ary { _map_fn call apush* } foreach
+	[] _map_ary { _map_fn call apush' } foreach
 } defb
 
 :select $ :_select_ary :_select_fn {
-	[] _select_ary { dup _select_fn call { apush* } { pop } if } foreach
+	[] _select_ary { dup _select_fn call { apush' } { pop } if } foreach
 } defb
 
 :reduce {
-	rot' swap rot foreach
+	rot* swap rot foreach
 } def
 
 
@@ -47,11 +53,25 @@
 	"" { _join-with_sep . . } reduce
 } defb
 
+:push' { dup rot* apush' swap } def
+
+:zip {
+	0 []
+	{ dup4 len dup3 ≠ }
+	{
+		dup4 dup3 get 
+		dup4 dup4 get
+		2 implode apush'
+		swap 1+ swap
+	} while
+	pop2 pop2 pop2
+} def
+
 :upto {
 	swap 1- swap
 	[]
 	{ dup3 dup3 < } {
-		rot 1+ swap dup2 apush* swap rot
+		rot 1+ swap dup2 apush' swap rot
 		rot
 	} while
 	a2b
@@ -60,8 +80,26 @@
 	b2a
 } def
 
-:expand {
+:explode {
 	rev
-	{ dup len } { apop swap } while
+	{ len' } { apop swap } while
 	pop
+} def
+
+:all? { dup2 len rot* select len = } def
+
+:a= {
+	len' dup3 len = {
+		zip { explode = } all?
+	} {
+		pop pop false
+	} if
+} def
+
+:aeq {
+	len' dup3 len = {
+		zip { explode eq } all?
+	} {
+		pop pop false
+	} if
 } def

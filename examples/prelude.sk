@@ -1,17 +1,15 @@
-:$ { "$" } def
-:__new_array_last_two { [] rot apush* swap apush* } def
 :bind {
 	a2b ( store the block )
 	( get arguments )
-	[] { swap 1 dupn "$" ne } { apush* } while pop
+	[] { swap 1 dupn "$" ne } { apush' } while pop
 
 	( define new arguments and store previous value )
 	[] swap 0
 	{ dup2 len dup2 ≠ }
 	{
-		get*
+		get'
 		1 dupn def? {
-			1 dupn 1 dupn fetch __new_array_last_two
+			1 dupn 1 dupn fetch [] rot apush' swap apush'
 			5 dupn swap apush
 		} &&
 		5 dupn defl
@@ -21,18 +19,18 @@
 	pop
 
 	( store the arguments and previous values, and call the block )
-	swap b2a rot' a2b a2b call
+	swap b2a rot* a2b a2b call
 
 	( undefine all argument functions )
 	b2a 0
 	{ dup2 len dup2 ≠ }
-	{ get* undef 1+ } while
+	{ get' undef 1+ } while
 	pop pop
 
 	( redefine all overwritten functions )
 	b2a 0
 	{ dup2 len dup2 ≠ }
-	{ get* expand def 1+ } while
+	{ get' explode def 1+ } while
 	pop pop
 } def
 
@@ -45,55 +43,103 @@
 :dup { 1 dupn } def
 :dup2 { 2 dupn } def
 :dup3 { 3 dupn } def
+:dup4 { 4 dupn } def
 :dupb { b2a dup a2b } def
 :dup2b { b2a dupb swap a2b } def
 :pop { 1 popn } def
 :pop2 { 2 popn } def
 :pop3 { 3 popn } def
+:pop4 { 4 popn } def
 :popb { b2a pop } def
 :pop2b { b2a popb a2b } def
 
+:rotn { 1+ dup dupn swap popn } def
 :swap { 2 rotn } def
 :rot { 3 rotn } def
-:rot' { rot rot } def
+:rot* { rot rot } def
+:rot4 { 4 rotn } def
+:rot4* { rot4 rot4 rot4 } def
 :rotn { dup a2b dupn b2a 1+ popn } def
 
+:void { } def
 :{} { { } } def
 :!! { ! ! } def
 :| { ! swap ! * ! } def
 :|| { {} swap if } def
 :&& { {} if } def
 :& { !! swap !! * } def
-:if { rot ! 1+ popn call } def
-:ifl { rot { pop } { pop2 } if } def
+:if { ifl call } def
+:ifl { rot ! 1+ popn  } def
 :_while_helper {
 	dupb call
 	{ b2a dupb swap a2b call _while_helper }
 	{ popb popb } if
 } def
 :while { a2b a2b _while_helper } def
+:call' { dup call } def
 
-:≤ { dup2 dup2 < rot' = | } def
-:≥ { dup2 dup2 > rot' = | } def
+:≤ { dup2 dup2 < rot* = | } def
+:≥ { dup2 dup2 > rot* = | } def
 :≠ { = ! } def
-:<=> { <=>* pop2 pop2 } def
-:<=>* { dup2 dup2 < { -1 } { dup2 dup2 > 1 0 ifl } if } def
+:<=> { <=>' pop2 pop2 } def
+:<=>' { dup2 dup2 < { -1 } { dup2 dup2 > 1 0 ifl } if } def
 
-:le { dup2 dup2 lt rot' eq | } def
-:ge { dup2 dup2 gt rot' eq | } def
+:le { dup2 dup2 lt rot* eq | } def
+:ge { dup2 dup2 gt rot* eq | } def
 :ne { eq ! } def
-:cmp { cmp* pop2 pop2 } def
-:cmp* { dup2 dup2 lt { -1 } { dup2 dup2 gt 1 0 ifl } if } def
+:cmp { cmp' pop2 pop2 } def
+:cmp' { dup2 dup2 lt { -1 } { dup2 dup2 gt 1 0 ifl } if } def
+
+:+' { dup2 dup2 + } def :-' { dup2 dup2 - } def
+:*' { dup2 dup2 - } def :/' { dup2 dup2 - } def
+:%' { dup2 dup2 % } def :^' { dup2 dup2 ^ } def
+:.' { dup2 dup2 . } def :x' { dup2 dup2 x } def
+:<' { dup2 dup2 < } def :≤' { dup2 dup2 ≤ } def
+:>' { dup2 dup2 > } def :≥' { dup2 dup2 ≥ } def
+:=' { dup2 dup2 = } def :≠' { dup2 dup2 ≠ } def
+:lt' { dup2 dup2 lt } def :le' { dup2 dup2 le } def
+:gt' { dup2 dup2 gt } def :ge' { dup2 dup2 ge } def
+:eq' { dup2 dup2 eq } def :ne' { dup2 dup2 ne } def
+:!' { dup ! } def
 
 :println { print "\n" print } def
 :alias { fetch def } def
 :abort { warn 1 quit } def
+:error :abort alias
 
 :1+ { 1 + } def
 :1- { 1 - } def
+:2+ { 2 + } def
+:2- { 2 - } def
 
 :[] { 0 alloc } def
-:get* { dup2 dup2 get } def
-:apush { apush* pop } def
+:get' { dup2 dup2 get } def
+:len' { dup len } def
+:del' { dup2 dup2 del } def
+:set' { dup3 dup3 dup3 set } def
+:apush { apush' pop } def
 
 :defl { 1 wrapn def } def
+:$ "$" defl
+:false 0 defl
+:true 1 defl
+
+:_raw-switch {
+	0 { get' rot* a2b a2b call ! b2a b2a rot } { 2+ } while ( find the matching element )
+	1+ get
+} def
+
+:case {
+	0 { get' rot* a2b a2b call ! b2a b2a rot } { 2+ } while ( find the matching element )
+	1+ get call
+} def
+:switch {
+	0 {
+		get' rot* a2b a2b 
+		dup2 swap call ! b2a b2a rot
+	} { 2+ } while ( find the matching element )
+	pop3
+	1+ get call
+} def
+:switch { switchl call } def
+:default { true } defl ( note that it's `defl` not `def`. )

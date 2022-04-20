@@ -1,6 +1,6 @@
 :[[ { stacklen a2b } def
 :=> :void alias
-:]] { dbgstack } def
+:]] { dbga } def
 
 [[ 'a' => 34
 	'b' => 45 ]]

@@ -1,0 +1,40 @@
+((include 'prelude.sk'))
+((include 'list.sk'))
+
+:=> :void alias
+
+:_m_index' {
+	0
+	{ aoob' { false } { get' dup4 eq ! } if }
+	{ 2+ }
+	while
+} def
+
+:mget' { dup2 dup2 mget } def
+:mget {
+	swap _m_index'
+
+	aoob'
+	{ "undefined•key:•" dup4 . error }
+	{ 1+ get pop2 } if
+} def
+
+:mset' { dup3 dup3 dup3 mset } def
+:mset {
+	swap rot _m_index'
+	
+	aoob'
+	{ pop swap apush' swap apush }
+	{ 1+ rot4 set pop }
+	if
+} def
+
+:mdel' { dup2 dup2 mdel } def
+:mdel {
+	swap _m_index'
+
+	aoob'
+	{ "undefined•key:•" dup4 . error }
+	{ del' pop del pop pop } if
+} def
+

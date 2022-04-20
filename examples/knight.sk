@@ -1,0 +1,252 @@
+((include 'prelude.sk'))
+((include 'map.sk'))
+((include 'list.sk'))
+
+:NUM "N" defl
+:STR "S" defl
+:BOOL "B" defl
+:NULL "L" defl
+:VAR "V" defl
+:AST "A" defl
+:env [] defl 
+
+:eq` { "eq" var 2 wrapn } def
+
+:new-num { NUM swap 2 implode } def
+:new-str { STR swap 2 implode } def
+:new-bool { !! BOOL swap 2 implode } def
+:new-null [ NULL 0 ] defl
+
+:FALSE false new-bool defl
+:TRUE true new-bool defl
+
+:to-str {
+	0 get' pop2
+	[
+		NUM eq` { 1 get }
+		STR eq` { 1 get }
+		BOOL eq` { 1 get "true" "false" ifl }
+		NULL eq` { pop "null" }
+		default { pop run to-str }
+	] switch
+} def
+
+:to-num {
+	0 get' pop2
+	[
+		NUM eq` { 1 get }
+		STR eq` { 1 get 0 + }
+		BOOL eq` { 1 get }
+		NULL eq` { pop 0 }
+		default { pop run to-num }
+	] switch
+} def
+
+:to-bool {
+	0 get' pop2
+	[
+		NUM eq` { 1 get 0 ≠ }
+		STR eq` { 1 get "" ne }
+		BOOL eq` { 1 get }
+		NULL eq` { pop false }
+		default { pop run to-bool }
+	] switch
+} def
+
+:dbq { dbga 0 quit } def
+:run {
+	dup 0 get
+	[
+	 	NUM eq` { ( nothing ) }
+	 	STR eq` { ( nothing ) }
+	 	BOOL eq` { ( nothing ) }
+	 	NULL eq` { ( nothing ) }
+	 	VAR eq` { 1 get env swap mget }
+	 	AST eq` { rev explode pop call }
+	 	default { "invalid" error }
+	] switch
+} def
+
+:kind-of' { dup 0 get } def
+
+:lookup-fn {
+	[
+		"P" eq` { getline new-str }
+		"R" eq` { rand new-num }
+
+		"E" eq` { to-str eval }
+		"B" eq` { ( the arg itself ) }
+		"C" eq` { run run }
+		"`" eq` { to-str system new-str }
+		"Q" eq` { to-num quit }
+		"!" eq` { to-bool ! new-bool }
+		"L" eq` { to-str len new-num }
+		"D" eq` { dup println }
+		"O" eq` { to-str println new-null }
+		"A" eq` {
+			run expand swap
+			"S" eq { 0 1 substr a2n new-num } { n2a new-str } if
+		}
+
+		"+" eq` {
+			run expand swap ( you cant add asts so this is well defined )
+			STR eq { swap to-str . new-str } { swap to-num + new-num } if
+		}
+		"-" eq` { to-num swap to-num - new-num }
+		"*" eq` {
+			run expand swap ( you cant mul asts so this is well defined )
+			STR eq { swap to-str x new-str } { swap to-num * new-num } if
+		}
+		"/" eq` { to-num swap to-num / new-num }
+		"%" eq` { to-num swap to-num % new-num }
+		"^" eq` { to-num swap to-num ^ new-num }
+		"<" eq` {
+			run expand swap
+			[
+				NUM eq` { swap to-num < }
+				STR eq` { swap to-str lt }
+				BOOL eq` { swap to-bool < }
+				default { "bad kind" error }
+			] switch new-bool
+		}
+		">" eq` {
+			[
+				NUM eq` { swap to-num > }
+				STR eq` { swap to-str gt }
+				BOOL eq` { swap to-bool > }
+				default { "bad kind" error }
+			] switch new-bool
+		}
+		"?" eq` {
+			run swap run
+
+			dup2 0 get
+			dup2 0 get
+			eq' {
+				pop STR eq { aeq } { a= } if
+			} {
+				pop pop pop pop false
+			} if new-bool
+		}
+
+		"&" eq` { run dup to-bool { pop run } { pop2 } if }
+		"|" eq` { run dup to-bool { pop2 } { pop run } if }
+		";" eq` { run pop run }
+		"=" eq` { 1 get swap run env rot* mset' pop2 pop2 }
+		"W" eq` { 
+			{ dup to-bool } { dup2 run pop } while
+			pop pop
+			new-null
+		}
+
+		"I" eq` { to-bool 1+ popn run }
+		"G" eq` { to-str rot* to-num swap to-num substr new-str }
+
+		"S" eq` {
+			to-str rot4* to-num rot* to-num rot* to-str
+			dup4 0 dup4 substr swap .
+			rot4* + dup2 len substr .
+			new-str
+		}
+		default { "invalid" error }
+	] switchl
+} def
+
+:is-whitespace {
+	[
+		"\s" eq` `true
+		"\n" eq` `true
+		"\t" eq` `true
+		"\r" eq` `true
+		"\f" eq` `true
+		{ pop true }  `false
+	] switch
+} def
+
+:is-number {
+	dup "0" ge { "9" le } { pop false } if
+} def
+
+:is-underscore { "_" eq } def
+:is-lowercase {
+	dup is-underscore { pop true } {
+		dup "a" ge { "z" le } { pop false } if
+	} if
+} def
+:is-upper {
+	dup "A" ge { "Z" le } { pop false } if
+} def
+:is-quote {
+	dup "'" eq { pop true } { "\"" eq } if
+} def
+
+:peek { 0 1 substr } def
+:peek' { dup peek } def
+:advance { dup len 1- 1 swap substr } def
+
+:parse-number {
+	"" swap
+	{ peek' is-number } { peek' rot swap . swap advance } while
+	swap new-num
+} def
+
+:parse-text {
+	peek' "" rot advance
+
+	{ peek' dup4 ne }
+	{ peek' rot swap . swap advance }
+	while
+
+	advance pop3 swap new-str
+} def
+
+:is-ident-iner {
+	dup is-lowercase  { } { dbga 1 quit } if
+} def
+
+:parse-identifier {
+	"" swap
+	{ peek' is-ident-iner } { peek' rot swap . swap advance } while
+	swap new-ident
+} def
+
+:parse {
+	( strip away comments and whitespace )
+	{
+		peek' "#" eq
+		{
+			{ peek' "\n" ne } { advance } while
+			true
+		} {
+			peek' is-whitespace
+		} if
+	} {
+		advance
+	} while
+
+	peek' [
+		`is-number `parse-number
+		`is-quote `parse-text
+		`is-lowercase `parse-identifier
+		default { "unknown•value" error }
+	] switch
+} def
+
+"O3" parse dbga 0 quit
+
+:i [ VAR "i" ] defl
+
+[ AST "A" lookup-fn "65" new-num ] run dbga 0 quit
+
+[ AST "S" lookup-fn "hello" new-str 1 new-str 2 new-str "" new-str ] run dbga 0 quit
+
+[ AST ";" lookup-fn
+	[ AST "=" lookup-fn i 4 new-num ]
+	[ AST "W" lookup-fn
+		i
+		[ AST "O" lookup-fn [ AST "=" lookup-fn i [ AST "-" lookup-fn i 1 new-num ] ] ]
+	]
+] run 
+
+
+

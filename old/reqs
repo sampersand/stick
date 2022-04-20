@@ -1,0 +1,9 @@
+dupn popn stacklen a2b b2a         ( stack-based ops )
+fetch var wrapn unwrap call kindof ( dynamic programming )
+def def? undef                     ( function interaction )
++ - * / % ^ < > = !                ( integer operators )
+. x lt gt eq                       ( string-exclusive operators )
+alloc get set len del              ( array [& string] operators )
+print warn gets system quit        ( i/o operators )
+rand dbgstack                      ( misc operators )
+

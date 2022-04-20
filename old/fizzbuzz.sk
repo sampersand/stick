@@ -1,0 +1,18 @@
+:divides* { dup2 swap % ! } def
+
+:fizzbuzz {
+  0
+  { dup2 dup2 > }
+  {
+    1+
+    15 divides* { "FizzBuzz" } {
+      3 divides* { "Fizz" } {
+        5 divides* { "Buzz" } { dup } if
+      } if
+    } if
+    println
+  }
+  while
+} def
+
+100 fizzbuzz
