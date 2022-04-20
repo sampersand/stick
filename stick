@@ -1,0 +1,31 @@
+require_relative 'src/stick'
+require 'optparse'
+
+to_run = []
+OptParse.new.instance_exec do
+  on_tail 'you can supply `-f` and `-e` as many times as you want'
+
+  on '-f', '--file=FILENAME', 'File to run' do |filename|
+    filename = '/dev/stdin' if filename == '-'
+    to_run.push [:file, filename]
+  end
+
+  on '-e', '--expr=EXPRESSION', 'Expression to run' do |expr|
+    to_run.push [:expr, expr]
+  end
+
+  parse!
+end
+
+env = Stick::Environment.new
+
+warn "no input, nothing to run." if to_run.empty?
+to_run.each do |kind, arg|
+  case kind
+  when :expr then Stick.play arg, env: env
+  when :file
+    contents = File.read arg rescue abort("unable to open file #{arg}: #$!")
+    Stick.play contents, arg, env: env
+  else fail "<internal error> unknown kind: #{kind.inspect}"
+  end
+end
