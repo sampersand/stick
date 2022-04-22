@@ -1449,6 +1449,19 @@ class Bundler::Thor::Options
   def self.to_switches(options); end
 end
 
+module Bundler::Thor::RakeCompat
+  include ::Rake::DSL
+  include ::Rake::FileUtilsExt
+  include ::FileUtils
+  include ::FileUtils::StreamUtils_
+end
+
+module Bundler::Thor::RakeCompat
+  def self.included(base); end
+
+  def self.rake_classes(); end
+end
+
 class Bundler::Thor::RequiredArgumentMissingError
 end
 
@@ -2882,6 +2895,15 @@ end
 
 module FileUtils
   include ::FileUtils::StreamUtils_
+  def ruby(*args, **options, &block); end
+
+  def safe_ln(*args, **options); end
+
+  def sh(*cmd, &block); end
+
+  def split_all(path); end
+  LN_SUPPORTED = ::T.let(nil, ::T.untyped)
+  RUBY = ::T.let(nil, ::T.untyped)
 end
 
 module FileUtils::DryRun
@@ -3943,6 +3965,8 @@ end
 
 module Kernel
   def self.at_exit(); end
+
+  def self.require(arg); end
 end
 
 class KeyError
@@ -3951,6 +3975,10 @@ end
 
 class LoadError
   include ::DidYouMean::Correctable
+end
+
+class Module
+  def rake_extension(method); end
 end
 
 class Monitor
@@ -4076,8 +4104,6 @@ class OpenStruct
   def extend!(mod, *args); end
 
   def freeze!(); end
-
-  def gem!(dep, *reqs); end
 
   def hash!(); end
 
@@ -4217,6 +4243,105 @@ class Ractor
   def self.new(*args, name: T.unsafe(nil), &block); end
 end
 
+module Rake::DSL
+  include ::Rake::FileUtilsExt
+  include ::FileUtils
+  include ::FileUtils::StreamUtils_
+end
+
+module Rake::DSL
+end
+
+module Rake::FileUtilsExt
+  include ::FileUtils
+  include ::FileUtils::StreamUtils_
+  def cd(*args, **options, &block); end
+
+  def chdir(*args, **options, &block); end
+
+  def chmod(*args, **options, &block); end
+
+  def chmod_R(*args, **options, &block); end
+
+  def chown(*args, **options, &block); end
+
+  def chown_R(*args, **options, &block); end
+
+  def copy(*args, **options, &block); end
+
+  def cp(*args, **options, &block); end
+
+  def cp_lr(*args, **options, &block); end
+
+  def cp_r(*args, **options, &block); end
+
+  def install(*args, **options, &block); end
+
+  def link(*args, **options, &block); end
+
+  def ln(*args, **options, &block); end
+
+  def ln_s(*args, **options, &block); end
+
+  def ln_sf(*args, **options, &block); end
+
+  def makedirs(*args, **options, &block); end
+
+  def mkdir(*args, **options, &block); end
+
+  def mkdir_p(*args, **options, &block); end
+
+  def mkpath(*args, **options, &block); end
+
+  def move(*args, **options, &block); end
+
+  def mv(*args, **options, &block); end
+
+  def nowrite(value=T.unsafe(nil)); end
+
+  def rake_check_options(options, *optdecl); end
+
+  def rake_output_message(message); end
+
+  def remove(*args, **options, &block); end
+
+  def rm(*args, **options, &block); end
+
+  def rm_f(*args, **options, &block); end
+
+  def rm_r(*args, **options, &block); end
+
+  def rm_rf(*args, **options, &block); end
+
+  def rmdir(*args, **options, &block); end
+
+  def rmtree(*args, **options, &block); end
+
+  def safe_unlink(*args, **options, &block); end
+
+  def symlink(*args, **options, &block); end
+
+  def touch(*args, **options, &block); end
+
+  def verbose(value=T.unsafe(nil)); end
+
+  def when_writing(msg=T.unsafe(nil)); end
+  DEFAULT = ::T.let(nil, ::T.untyped)
+end
+
+module Rake::FileUtilsExt
+  extend ::Rake::FileUtilsExt
+  extend ::FileUtils
+  extend ::FileUtils::StreamUtils_
+  def self.nowrite_flag(); end
+
+  def self.nowrite_flag=(nowrite_flag); end
+
+  def self.verbose_flag(); end
+
+  def self.verbose_flag=(verbose_flag); end
+end
+
 class Random::Base
   include ::Random::Formatter
   def bytes(arg); end
@@ -4286,8 +4411,105 @@ class SimpleDelegator
   RUBYGEMS_ACTIVATION_MONITOR = ::T.let(nil, ::T.untyped)
 end
 
+class Stick::Environment
+  def callstack(*args, &blk); end
+
+  def define_variable(*args, &blk); end
+
+  def delete_variable(*args, &blk); end
+
+  def fetch_variable(*args, &blk); end
+
+  def initialize(*args, &blk); end
+
+  def pop(*args, &blk); end
+
+  def popn(*args, &blk); end
+
+  def push(*args, &blk); end
+
+  def stack1(*args, &blk); end
+
+  def stack2(*args, &blk); end
+
+  def variable_defined?(*args, &blk); end
+
+  def with_stackframe(*args, &blk); end
+  DEFAULT_VARIABLES = ::T.let(nil, ::T.untyped)
+end
+
+class Stick::Environment::UnknownVariable
+  def initialize(*args, &blk); end
+
+  def name(*args, &blk); end
+end
+
+class Stick::Environment::UnknownVariable
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Stick::Environment
+  extend ::T::Sig
+  extend ::T::Private::Methods::SingletonMethodHooks
+  extend ::T::Private::Methods::MethodHooks
+  def self.define(*args, &blk); end
+end
+
+class Stick::Parser
+  def initialize(*args, &blk); end
+
+  def parse(*args, &blk); end
+
+  def source_location(*args, &blk); end
+end
+
+class Stick::Parser::ParseError
+end
+
+class Stick::Parser::ParseError
+end
+
+class Stick::Parser
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Stick::SourceLocation
+  def file(*args, &blk); end
+
+  def initialize(*args, &blk); end
+
+  def line(*args, &blk); end
+
+  def to_s(*args, &blk); end
+end
+
+class Stick::SourceLocation
+  extend ::T::Sig
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
+class Stick::Value
+  extend ::T::Private::Methods::MethodHooks
+  extend ::T::Private::Methods::SingletonMethodHooks
+end
+
 class String
   include ::JSON::Ext::Generator::GeneratorMethods::String
+  def ext(newext=T.unsafe(nil)); end
+
+  def pathmap(spec=T.unsafe(nil), &block); end
+
+  def pathmap_explode(); end
+
+  def pathmap_partial(n); end
+
+  def pathmap_replace(patterns, &block); end
+
   def shellescape(); end
 
   def shellsplit(); end

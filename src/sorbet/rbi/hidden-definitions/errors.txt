@@ -376,6 +376,7 @@
 # wrong constant name <Class:NoKwargSpellChecker>
 # wrong constant name <Class:Option>
 # wrong constant name <Class:Options>
+# wrong constant name <Class:RakeCompat>
 # wrong constant name <Class:RequiredArgumentMissingError>
 # uninitialized constant Bundler::Thor::SHELL_DELEGATED_METHODS
 # wrong constant name <Class:Sandbox>
@@ -704,6 +705,19 @@
 # wrong constant name switch_option
 # wrong constant name <static-init>
 # wrong constant name to_switches
+# uninitialized constant Bundler::Thor::RakeCompat::DEFAULT
+# uninitialized constant Bundler::Thor::RakeCompat::LN_SUPPORTED
+# uninitialized constant Bundler::Thor::RakeCompat::LOW_METHODS
+# Did you mean?  Bundler::Thor::RakeCompat::LowMethods
+# uninitialized constant Bundler::Thor::RakeCompat::METHODS
+# Did you mean?  Method
+# uninitialized constant Bundler::Thor::RakeCompat::OPT_TABLE
+# uninitialized constant Bundler::Thor::RakeCompat::RUBY
+# uninitialized constant Bundler::Thor::RakeCompat::VERSION
+# Did you mean?  Bundler::VERSION
+# wrong constant name <static-init>
+# wrong constant name included
+# wrong constant name rake_classes
 # wrong constant name <static-init>
 # wrong constant name <static-init>
 # wrong constant name <Class:Basic>
@@ -942,12 +956,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::FTP::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::FTP::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::FTP::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::FTP::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::FTP::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::FTP::URI_REF
@@ -1008,12 +1022,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::File::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::File::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::File::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::File::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::File::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::File::URI_REF
@@ -1077,12 +1091,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::Generic::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::Generic::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::Generic::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::Generic::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::Generic::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::Generic::URI_REF
@@ -1196,12 +1210,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::HTTP::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::HTTP::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::HTTP::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::HTTP::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::HTTP::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::HTTP::URI_REF
@@ -1260,12 +1274,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::HTTPS::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::HTTPS::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::HTTPS::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::HTTPS::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::HTTPS::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::HTTPS::URI_REF
@@ -1324,12 +1338,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::LDAP::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::LDAP::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::LDAP::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::LDAP::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::LDAP::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::LDAP::URI_REF
@@ -1411,12 +1425,12 @@
 # Did you mean?  Bundler::URI::LDAPS::SCOPE_ONE
 # uninitialized constant Bundler::URI::LDAPS::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::LDAPS::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::LDAPS::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::LDAPS::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::LDAPS::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::LDAPS::URI_REF
@@ -1473,12 +1487,12 @@
 # Did you mean?  Bundler::URI::SCHEME
 # uninitialized constant Bundler::URI::MailTo::TBLDECWWWCOMP_
 # Did you mean?  Bundler::URI::MailTo::TBLENCWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::MailTo::TBLENCWWWCOMP_
 # Did you mean?  Bundler::URI::MailTo::TBLDECWWWCOMP_
-#                Bundler::URI::TBLENCWWWCOMP_
 #                Bundler::URI::TBLDECWWWCOMP_
+#                Bundler::URI::TBLENCWWWCOMP_
 # uninitialized constant Bundler::URI::MailTo::UNSAFE
 # Did you mean?  Bundler::URI::UNSAFE
 # uninitialized constant Bundler::URI::MailTo::URI_REF
@@ -1759,10 +1773,26 @@
 # Did you mean?  File
 # wrong constant name absolute_path?
 # wrong constant name exists?
+# wrong constant name ruby
+# wrong constant name safe_ln
+# wrong constant name sh
+# wrong constant name split_all
+# uninitialized constant FileUtils::DryRun::LN_SUPPORTED
+# Did you mean?  FileUtils::LN_SUPPORTED
+# uninitialized constant FileUtils::DryRun::RUBY
+# Did you mean?  FileUtils::RUBY
 # uninitialized constant FileUtils::DryRun::VERSION
 # Did you mean?  FileUtils::VERSION
+# uninitialized constant FileUtils::NoWrite::LN_SUPPORTED
+# Did you mean?  FileUtils::LN_SUPPORTED
+# uninitialized constant FileUtils::NoWrite::RUBY
+# Did you mean?  FileUtils::RUBY
 # uninitialized constant FileUtils::NoWrite::VERSION
 # Did you mean?  FileUtils::VERSION
+# uninitialized constant FileUtils::Verbose::LN_SUPPORTED
+# Did you mean?  FileUtils::LN_SUPPORTED
+# uninitialized constant FileUtils::Verbose::RUBY
+# Did you mean?  FileUtils::RUBY
 # uninitialized constant FileUtils::Verbose::VERSION
 # Did you mean?  FileUtils::VERSION
 # uninitialized constant Find
@@ -2188,6 +2218,7 @@
 # wrong constant name then
 # wrong constant name yield_self
 # wrong constant name at_exit
+# wrong constant name require
 # uninitialized constant LUSolve
 # uninitialized constant LUSolve
 # uninitialized constant Logger
@@ -2196,6 +2227,7 @@
 # uninitialized constant Matrix
 # uninitialized constant MessagePack
 # uninitialized constant MessagePack
+# wrong constant name rake_extension
 # wrong constant name enter
 # wrong constant name exit
 # wrong constant name mon_check_owner
@@ -2286,11 +2318,11 @@
 # uninitialized constant OpenSSL::Digest::DSS1
 # uninitialized constant OpenSSL::Digest::DSS1
 # uninitialized constant OpenSSL::Digest::MD2
-# Did you mean?  OpenSSL::Digest::MD4
-#                OpenSSL::Digest::MD5
+# Did you mean?  OpenSSL::Digest::MD5
+#                OpenSSL::Digest::MD4
 # uninitialized constant OpenSSL::Digest::MD2
-# Did you mean?  OpenSSL::Digest::MD4
-#                OpenSSL::Digest::MD5
+# Did you mean?  OpenSSL::Digest::MD5
+#                OpenSSL::Digest::MD4
 # uninitialized constant OpenSSL::Digest::MDC2
 # uninitialized constant OpenSSL::Digest::MDC2
 # uninitialized constant OpenSSL::Digest::SHA
@@ -2322,7 +2354,6 @@
 # wrong constant name enum_for!
 # wrong constant name extend!
 # wrong constant name freeze!
-# wrong constant name gem!
 # wrong constant name hash!
 # wrong constant name init_with
 # wrong constant name init_with!
@@ -2422,6 +2453,69 @@
 # wrong constant name <static-init>
 # wrong constant name <static-init>
 # wrong constant name new
+# uninitialized constant Rake::DSL::DEFAULT
+# uninitialized constant Rake::DSL::LN_SUPPORTED
+# uninitialized constant Rake::DSL::LOW_METHODS
+# Did you mean?  Rake::DSL::LowMethods
+# uninitialized constant Rake::DSL::METHODS
+# Did you mean?  Method
+# uninitialized constant Rake::DSL::OPT_TABLE
+# uninitialized constant Rake::DSL::RUBY
+# uninitialized constant Rake::DSL::VERSION
+# Did you mean?  Rake::Version
+#                Rake::VERSION
+# wrong constant name <static-init>
+# uninitialized constant Rake::FileUtilsExt::LN_SUPPORTED
+# uninitialized constant Rake::FileUtilsExt::LOW_METHODS
+# Did you mean?  Rake::FileUtilsExt::LowMethods
+# uninitialized constant Rake::FileUtilsExt::METHODS
+# Did you mean?  Method
+# uninitialized constant Rake::FileUtilsExt::OPT_TABLE
+# uninitialized constant Rake::FileUtilsExt::RUBY
+# uninitialized constant Rake::FileUtilsExt::VERSION
+# Did you mean?  Rake::Version
+#                Rake::VERSION
+# wrong constant name cd
+# wrong constant name chdir
+# wrong constant name chmod
+# wrong constant name chmod_R
+# wrong constant name chown
+# wrong constant name chown_R
+# wrong constant name copy
+# wrong constant name cp
+# wrong constant name cp_lr
+# wrong constant name cp_r
+# wrong constant name install
+# wrong constant name link
+# wrong constant name ln
+# wrong constant name ln_s
+# wrong constant name ln_sf
+# wrong constant name makedirs
+# wrong constant name mkdir
+# wrong constant name mkdir_p
+# wrong constant name mkpath
+# wrong constant name move
+# wrong constant name mv
+# wrong constant name nowrite
+# wrong constant name rake_check_options
+# wrong constant name rake_output_message
+# wrong constant name remove
+# wrong constant name rm
+# wrong constant name rm_f
+# wrong constant name rm_r
+# wrong constant name rm_rf
+# wrong constant name rmdir
+# wrong constant name rmtree
+# wrong constant name safe_unlink
+# wrong constant name symlink
+# wrong constant name touch
+# wrong constant name verbose
+# wrong constant name when_writing
+# wrong constant name <static-init>
+# wrong constant name nowrite_flag
+# wrong constant name nowrite_flag=
+# wrong constant name verbose_flag
+# wrong constant name verbose_flag=
 # uninitialized constant Random::Base::ALPHANUMERIC
 # Did you mean?  Random::ALPHANUMERIC
 # wrong constant name bytes
@@ -2466,10 +2560,39 @@
 # uninitialized constant VERSION
 # uninitialized constant SingleForwardable
 # uninitialized constant SingleForwardable
-# uninitialized constant Singleton
-# Did you mean?  SignalException
-# uninitialized constant Singleton
-# Did you mean?  SignalException
+# wrong constant name <Class:UnknownVariable>
+# wrong constant name callstack
+# wrong constant name define_variable
+# wrong constant name delete_variable
+# wrong constant name fetch_variable
+# wrong constant name initialize
+# wrong constant name pop
+# wrong constant name popn
+# wrong constant name push
+# wrong constant name stack1
+# wrong constant name stack2
+# wrong constant name variable_defined?
+# wrong constant name with_stackframe
+# wrong constant name initialize
+# wrong constant name name
+# wrong constant name <static-init>
+# wrong constant name define
+# wrong constant name <Class:ParseError>
+# wrong constant name initialize
+# wrong constant name parse
+# wrong constant name source_location
+# wrong constant name <static-init>
+# wrong constant name <static-init>
+# wrong constant name file
+# wrong constant name initialize
+# wrong constant name line
+# wrong constant name to_s
+# wrong constant name <static-init>
+# wrong constant name ext
+# wrong constant name pathmap
+# wrong constant name pathmap_explode
+# wrong constant name pathmap_partial
+# wrong constant name pathmap_replace
 # wrong constant name shellescape
 # wrong constant name shellsplit
 # wrong constant name set_encoding_by_bom

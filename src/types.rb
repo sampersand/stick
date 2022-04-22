@@ -1,6 +1,8 @@
-# typed: strict
+# typed: true
 require 'sorbet-runtime'
 require_relative 'stick'
+
+return if defined? Stick::Value
 
 module Stick
   extend T::Sig
@@ -10,6 +12,15 @@ module Stick
 
     sig{ params(env: Environment).void }
     def run(env) = env.push(self)
+
+    sig{ returns(String) }
+    def to_s = raise("undefined")
+
+    sig{ returns(Integer) }
+    def to_i = raise("undefined")
+
+    sig{ returns(T::Array[Value]) }
+    def to_a = raise("undefined")
   end
 
   class Scalar < Value
@@ -46,17 +57,12 @@ module Stick
     sig{ returns(String) }
     attr_reader :name
 
-    sig{ params(
-      name: String,
-      env: T::Boolean,
-      push: T::Boolean,
-      code: Proc).void }
-    def initialize(name, env: false, push: true, &code)
+    sig{ params(name: String, push: T::Boolean, code: Proc).void }
+    def initialize(name, push: true, &code)
       @name = name
       @code = code
-      @with_env = env
       @push_result = push
-      @arity = T.let @code.arity - (@with_env ? 1 : 0), Integer
+      @arity = T.let @code.arity, Integer
     end
 
     sig{ returns(String) }
@@ -64,10 +70,8 @@ module Stick
 
     sig{ params(env: Environment).void }
     def call(env)
-      args = @arity.times.map { env.pop }.reverse
-      args.unshift env if @with_env
-
-      result = T.unsafe(@code).call(*args)
+      args = T.cast @arity.times.map { env.pop }.reverse, T::Array[T.any(Environment, Value)]
+      result = T.unsafe(@code).call(env, *args)
       return unless @push_result
 
       env.push case result
@@ -120,7 +124,7 @@ module Stick
 
     sig{ params(env: Environment).void }
     def run(env)
-      env.fetch_variable(@name).call(env)
+      T.let(env.fetch_variable(@name), T.untyped).call(env)
     end
   end
 end
