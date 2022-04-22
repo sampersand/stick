@@ -1,5 +1,4 @@
 # typed: strict
-
 require 'sorbet-runtime'
 require_relative 'stick'
 
@@ -47,7 +46,11 @@ module Stick
     sig{ returns(String) }
     attr_reader :name
 
-    sig{ params(name: String, env: T::Boolean, push: T::Boolean, code: Proc).void }
+    sig{ params(
+      name: String,
+      env: T::Boolean,
+      push: T::Boolean,
+      code: T.proc.params()).void }
     def initialize(name, env: false, push: true, &code)
       @name = name
       @code = code
