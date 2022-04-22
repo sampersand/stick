@@ -1,0 +1,25 @@
+"./value.sk" import
+"./parse.sk" import
+"./env.sk" import
+"./function.sk" import
+
+
+";=n:20;=a:0;=fB:I>2n:n;=+'_'a:=n-nT;=a+aT+Cf;=n-V+'_'=a-aT1CfO:Cf" play
+( "\
+;=n:20\
+;=a:0\
+;=fB\
+	:I>2n:n\
+		;=+'_'a:=n-nT\
+		;=a+aT\
+		+Cf;\
+			=n-V+'_'=a-aT1\
+			Cf\
+:O:Cf" play )
+
+( ";=n\s10;=aF;=b\s1;W=n-nT;=t:a;=a:b=b+b:tOb" play )
+( ";=a:0W!?10aO=a+1a" play )
+( "W\sP\sO1\s|\s1\sO2" play )
+( "D\s*\"a\"\s34" play )
+
+( "\n\t\s#hello\s\nO;3\s\"4\s4\"" play  )

@@ -1,9 +1,109 @@
 "../prelude.sk" import
 
-:eq` { "eq" var 2 wrap } def
+:arity {
+	[
+		{ "RPTFN" str-contains } => 0
+		{ "EBC`Q!LDOA~V" str-contains } => 1
+		{ "+-*/%^<>?&|;=W" str-contains } => 2
+		{ "IG" str-contains } => 3
+		{ "S" eq } => 4
+		default => { "unknown\stoken\sstart" die }
+	] switchl
+} def
+
+:play { parse pop2 run } def
 
 :lookup-fn {
 	[
-		"+"
-	] switch
+		{ "T" eq } => { true new-bool }
+		{ "F" eq } => { false new-bool }
+		{ "N" eq } => { new-null }
+		{ "R" eq } => { 0 4294967295 rand new-num }
+		{ "P" eq } => { getline new-str }
+
+		{ "E" eq } => { to-str play }
+		{ "B" eq } => { ( the argument itself ) }
+		{ "C" eq } => { run run }
+		{ "`" eq } => { to-str system new-str }
+		{ "Q" eq } => { to-num quit }
+		{ "!" eq } => { to-bool ! new-bool }
+		{ "L" eq } => { to-str strlen new-num }
+		{ "D" eq } => { run dup dump }
+		{ "O" eq } => { to-str println new-null ( todo ) }
+		{ "A" eq } => { run explode swap NUM = { chr new-str } { ord new-num } if }
+		{ "~" eq } => { to-num ~ new-num }
+		{ "V" eq } => { to-str fetch-var }
+
+		{ "+" eq } => {
+			run explode swap NUM = {
+				swap to-num + new-num
+			} {
+				swap to-str . new-str
+			} if
+		}
+		{ "-" eq } => { to-num swap to-num - new-num }
+		{ "*" eq } => {
+			run explode swap NUM = {
+				swap to-num * new-num
+			} {
+				swap to-num x new-str
+			} if
+		}
+		{ "%" eq } => { to-num swap to-num % new-num }
+		{ "^" eq } => { to-num swap to-num ^ new-num }
+		{ "<" eq } => {
+			run rev explode [
+				{ NUM = } => { swap to-num < }
+				{ STR = } => { swap to-str lt }
+				{ TRUE = } => { to-bool pop false }
+				{ FALSE = } => { to-bool }
+				default => { "invalid\stype\sgiven\sto\s<" die }
+			] switch new-bool
+		}
+		{ ">" eq } => {
+			run rev explode [
+				{ NUM = } => { swap to-num > }
+				{ STR = } => { swap to-str gt }
+				{ TRUE = } => { to-bool ! }
+				{ FALSE = } => { pop false }
+				default => { "invalid\stype\sgiven\sto\s>" die }
+			] switch new-bool
+		}
+		{ "?" eq } => {
+			run swap run
+			dup2 0 get dup2 0 get = {
+				dup 0 get [
+					{ NUM = } => { 1 get swap 1 get = }
+					{ STR = } => { 1 get swap 1 get eq }
+					{ TRUE = } => { true }
+					{ FALSE = } => { false }
+					{ NULL = } => { false }
+					default => { 0 get "unable\sto\sequate:\s" swap . die }
+				] switch
+			} {
+				pop pop false
+			} if new-bool
+		}
+		{ "&" eq } => { run dup to-bool { pop run } { pop2 } if }
+		{ "|" eq } => { run dup to-bool { pop2 } { pop run } if }
+		{ ";" eq } => { run pop run  }
+		{ "=" eq } => {
+			dup 0 get VAR = { 1 get } { to-str } if
+			swap run dup a2b assign-var b2a
+		}
+		{ "W" eq } => {
+			{ dup to-bool } { dup2 run pop } while
+			pop pop
+			new-null
+		}
+		{ "I" eq } => { to-bool 1+ popn run }
+		{ "G" eq } => { to-str rot* to-num swap to-num substr new-str }
+		{ "S" eq } => {
+			to-str rot4* to-num rot* to-num swap to-str
+			dup4 0 5 dupn substr swap . a2b
+			+ dup2 strlen substr b2a swap .
+			new-str
+		}
+		default => { "oops\sunknown\sfunction" dbq }
+	] switchl
 } def

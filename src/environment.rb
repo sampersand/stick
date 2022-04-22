@@ -38,15 +38,28 @@ module Stick
       end
     end
 
+
+    define('println', push: false) { print _2, "\n" }
+    define('dup') { T.must _1.stack1.last }
+    define('1-') { _2.to_i - 1 }
+    define('swap', push: false) { _1.stack1.concat [_3, _2] }
+    define('&&', push: false) { 
+      if T.cast(_2, Scalar).truthy?
+        T.cast(_3, T.any(NativeFunction, Group)).call(_1)
+      end
+    }
+
     ## BOOLEAN METHOD
     define('!') { !T.cast(_2, Scalar).truthy? }
 
     ## NUMBER METHODS
+    define('~') { -_2.to_i }
     define('+') { _2.to_i + _3.to_i }
     define('-') { _2.to_i - _3.to_i }
     define('*') { _2.to_i * _3.to_i }
     define('/') { _2.to_i / _3.to_i }
     define('%') { _2.to_i % _3.to_i }
+    define('^') { _2.to_i ** _3.to_i }
     define('<') { _2.to_i <  _3.to_i }
     define('≤') { _2.to_i <= _3.to_i }
     define('>') { _2.to_i >  _3.to_i }
@@ -78,7 +91,6 @@ module Stick
     define('del') { _2.to_a.delete_at _3.to_i }
     define('len') { _2.to_a.length }
 
-
     ## VARIABLE METHODS
     define('fetch') { _1.fetch_variable _2.to_s }
     define('var') { Variable.new _2.to_s }
@@ -101,7 +113,6 @@ module Stick
     define('quit') { exit _2.to_i }
     define('warn', push: false) { warn _2.to_s }
     define('print', push: false) { print _2 }
-    define('println', push: false) { print _2, "\n" }
     define('getline'){ gets.chomp }
     define('system'){ `#{_2}` }
     define('read-file') { File.read _2.to_s }

@@ -1,4 +1,7 @@
 # typed: strict
+require 'sorbet-runtime'
+T::Configuration.default_checked_level = :tests
+
 module Stick
   extend T::Sig
   VERSION = '0.1'

@@ -51,7 +51,7 @@
 :println { print "\n" print } def
 :alias { fetch def } def
 :abort { warn 1 quit } def
-:error :abort alias
+:die :abort alias
 
 :defl { 1 wrap def } def
 :false 0 defl
@@ -70,6 +70,7 @@
 	} while
 	pop2
 } def
+:str-contains { chars { dup2 eq } any? pop2 } def
 
 :apush { dup2 len swap set } def
 :implode {

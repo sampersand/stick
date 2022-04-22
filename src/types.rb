@@ -14,13 +14,13 @@ module Stick
     def run(env) = env.push(self)
 
     sig{ returns(String) }
-    def to_s = raise("undefined")
+    def to_s = raise("undefined for #{self.class}")
 
     sig{ returns(Integer) }
-    def to_i = raise("undefined")
+    def to_i = raise("undefined for #{self.class}")
 
     sig{ returns(T::Array[Value]) }
-    def to_a = raise("undefined")
+    def to_a = raise("undefined for #{self.class}")
   end
 
   class Scalar < Value
@@ -62,7 +62,7 @@ module Stick
       @name = name
       @code = code
       @push_result = push
-      @arity = T.let @code.arity, Integer
+      @arity = T.let @code.arity - 1, Integer
     end
 
     sig{ returns(String) }
@@ -70,7 +70,7 @@ module Stick
 
     sig{ params(env: Environment).void }
     def call(env)
-      args = T.cast @arity.times.map { env.pop }.reverse, T::Array[T.any(Environment, Value)]
+      args = T.cast @arity.times.map { env.popn 0 }.reverse, T::Array[T.any(Environment, Value)]
       result = T.unsafe(@code).call(env, *args)
       return unless @push_result
 
@@ -79,7 +79,7 @@ module Stick
                when false then Scalar.new 0
                when Integer, String, Array then Scalar.new result
                when Value then result
-               else fail "<internal error> unknown result: #{result} for function #@name"
+               else fail "<internal error> unknown result: #{result.inspect} for function #@name: #{args}"
                end
     end
   end

@@ -1,0 +1,15 @@
+"prelude.sk" import
+
+:fizzbuzz {
+	1 swap range {
+		dup [
+			{ 15 % ! } => { pop "FizzBuzz" }
+			{  3 % ! } => { pop "Fizz" }
+			{  5 % ! } => { pop "Buzz" }
+			default  => { ( don't pop ) }
+		] switch println
+	} foreach
+} def
+
+100 fizzbuzz
+

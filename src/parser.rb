@@ -1,4 +1,5 @@
 # typed: ignore
+require 'sorbet-runtime'
 require_relative 'stick'
 require_relative 'types'
 
@@ -65,7 +66,7 @@ module Stick
     sig{ returns(T.nilable(String)) }
     def next_word
       @lineno += @stream.slice!(/\A\s*/)&.count("\n") || 0
-      @stream.slice! /\A\S+/
+      @stream.slice!(/\A(\\\n\s*|\S)+/)&.gsub(/\\\n\s*/, '')
     end
 
     sig{ params(message: String, source: SourceLocation).returns(T.noreturn) }

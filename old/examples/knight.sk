@@ -63,7 +63,7 @@
 	 	NULL eq` { ( nothing ) }
 	 	VAR eq` { 1 get env swap mget }
 	 	AST eq` { rev explode pop call }
-	 	default { "invalid" error }
+	 	default { "invalid" die }
 	] switch
 } def
 
@@ -106,7 +106,7 @@
 				NUM eq` { swap to-num < }
 				STR eq` { swap to-str lt }
 				BOOL eq` { swap to-bool < }
-				default { "bad kind" error }
+				default { "bad kind" die }
 			] switch new-bool
 		}
 		">" eq` {
@@ -114,7 +114,7 @@
 				NUM eq` { swap to-num > }
 				STR eq` { swap to-str gt }
 				BOOL eq` { swap to-bool > }
-				default { "bad kind" error }
+				default { "bad kind" die }
 			] switch new-bool
 		}
 		"?" eq` {
@@ -148,7 +148,7 @@
 			rot4* + dup2 len substr .
 			new-str
 		}
-		default { "invalid" error }
+		default { "invalid" die }
 	] switchl
 } def
 
@@ -228,7 +228,7 @@
 		`is-number `parse-number
 		`is-quote `parse-text
 		`is-lowercase `parse-identifier
-		default { "unknown•value" error }
+		default { "unknown•value" die }
 	] switch
 } def
 

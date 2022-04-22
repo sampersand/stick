@@ -2,9 +2,9 @@
 
 :peek { dup 0 1 substr } def
 :advance { dup strlen 1 swap substr } def
+:peek-advance { peek swap advance swap } def
 
-:str-contains { chars { dup2 eq } any? pop2 } def
-:isspace { "\s\r\n\t\f" str-contains } def
+:isspace { "\s\r\n\t\f(){}[]:" str-contains } def
 :isdigit { dup "0" ge { "9" le } { pop false } if } def
 
 :islower {
@@ -30,7 +30,8 @@
 
 
 :parse-function {
-
+	swap dup2 arity dup a2b times { pop parse } map
+	rot lookup-fn AST rot* swap explode b2a 2+ implode
 } def
 
 :parse {
@@ -39,14 +40,13 @@
 		{ isspace } => { advance parse }
 		{ isdigit } => { { isdigit } take-while new-num }
 		{ islower } => { { islower } take-while new-var }
-		{ "T" eq } => { { isupper } take-while pop true new-bool }
-		{ "F" eq } => { { isupper } take-while pop false new-bool }
-		{ "N" eq } => { { isupper } take-while pop new-null }
+		{ dup "'" eq swap """ eq | } => {
+			peek-advance swap
+			{ 5 dupn ne } take-while ( yes we're relying on take-while impl behaviour. )
+			pop3 swap advance swap
+			new-str
+		}
 		{ isupper } => { peek swap { isupper } take-while pop swap parse-function }
-		default { peek swap advance swap parse-function }
+		default { peek-advance parse-function }
 	] switch
-	dbq
 } def
-
-"./value.sk" import
-"\n\t\s#hello\s\nWORLD12\n3a" parse dbq

@@ -1,17 +1,34 @@
 "prelude.sk" import
-( a map function that allows you to access the stack before calling map )
-:map' {
-	swap []
-	{ dup2 len dup2 len ≠ } {
-		dup dup3 dup2 len get 5 dupn
-		( push everything we have onto the saved stack )
-		6 rotn a2b 5 rotn a2b rot4 a2b rot a2b
-		call
-		( remove everything from the saved stack )
-		b2a swap b2a swap b2a rot4* b2a rot5*
-		apush
-	} while
-	pop2 pop2
+
+:ary-oob { swap len ≥ } def
+
+:_map_index' {
+	0
+	{ dup3 dup2 ary-oob { false } { dup3 dup2 get 0 get dup3 ne } if }
+	{ 1+ } while
 } def
 
-"X" [ "A" "B" "C" ] { dup2 . } map' println
+:mset {
+	a2b _map_index' swap b2a 2 implode
+	dup3 dup3 ary-oob
+	{ pop2 apush } { set } if
+} def
+
+:mget {
+	_map_index'dup3 dup2 ary-oob
+
+	{ pop "unknown\svariable\sname:\s" swap . die }
+	{ pop2 get 1 get }
+	if
+} def
+
+
+:env [ [ "KEY1" "VAL" ] [ "KEY2" "VAL2" ] ] defl
+
+env "KEY2" mget dbq
+
+env "KEY" "VALUE" mset
+env "KEY2" "VALUE2" mset
+env dbga pop
+env "KEY2" "VALUE3" mset
+env dbga pop

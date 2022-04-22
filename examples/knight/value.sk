@@ -11,34 +11,34 @@
 :=` { "=" var 2 wrap } def
 
 :to-str {
-	rev explode [
-		NUM =` => {}
-		STR =` => {}
-		TRUE =` => { "true" }
-		FALSE =` => { "false" }
-		NULL =` => { "null" }
+	rev explode dup [
+		NUM =` => { pop }
+		STR =` => { pop }
+		TRUE =` => { pop "true" }
+		FALSE =` => { pop "false" }
+		NULL =` => { pop "null" }
 		default => { run' to-str }
 	] switch
 } def
 
 :to-num {
-	rev explode [
-		NUM =` => {}
-		STR =` => { 0 + }
-		TRUE =` => { 1 }
-		FALSE =` => { 0 }
-		NULL =` => { 0 }
+	rev explode dup [
+		NUM =` => { pop }
+		STR =` => { pop 0 + }
+		TRUE =` => { pop 1 }
+		FALSE =` => { pop 0 }
+		NULL =` => { pop 0 }
 		default => { run' to-num }
 	] switch
 } def
 
 :to-bool {
-	rev explode [
-		NUM =` => {}
-		STR =` => {}
-		TRUE =` => { true }
-		FALSE =` => { false }
-		NULL =` => { false }
+	rev explode dup [
+		NUM =` => { pop }
+		STR =` => { pop "" ne }
+		TRUE =` => { pop true }
+		FALSE =` => { pop false }
+		NULL =` => { pop false }
 		default => { run' to-bool }
 	] switch
 } def
@@ -51,8 +51,8 @@
 		FALSE =` => { "Boolean(false)" }
 		NULL =` => { "Null()" }
 		VAR =` => { "Variable(" swap . ")" . }
-		AST =` => { "todo:\sAST debug" error }
-	 	default => { "invalid\stype:\s" swap . error }
+		AST =` => { "todo:\sAST debug" die }
+	 	default => { "invalid\stype:\s" swap . die }
 	] switch print
 } def
 
@@ -64,8 +64,8 @@
 	 	TRUE =` => { true new-bool }
 	 	FALSE =` => { false new-bool }
 	 	NULL =` => { new-null }
-	 	VAR =` => { dbq ( todo 1 get env swap mget ) }
-	 	AST =` => { dbq pop call }
-	 	default => { "invalid\stype:\s" swap . error }
+	 	VAR =` => { fetch-var }
+	 	AST =` => { call }
+	 	default => { "invalid\stype:\s" swap . die }
 	] switch
 } def
