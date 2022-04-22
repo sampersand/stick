@@ -1,0 +1,48 @@
+"../prelude.sk" import
+
+:peek { dup 0 1 substr } def
+:advance { dup strlen 1 swap substr } def
+
+:str-contains { chars { dup2 eq } any? pop2 } def
+:isspace { "\s\r\n\t\f" str-contains } def
+:isdigit { dup "0" ge { "9" le } { pop false } if } def
+
+:islower {
+	dup isdigit {
+		dup "_" eq {
+			dup "a" ge { "z" le } { pop false } if
+		} ||
+	} ||
+} def
+
+:isupper {
+	dup "_" eq {
+		dup "A" ge { "Z" le } { pop false } if
+	}
+} def
+
+:take-while {
+	""
+	rot
+	{ peek dup4 call } { peek swap rot* . swap advance } while
+	swap pop3
+} def
+
+:parse {
+	peek [
+		{ "#" eq } => { { "\n" ne } take-while pop parse }
+		{ isspace } => { advance parse }
+		{ isdigit } => { { isdigit } take-while new-num }
+		{ islower } => { { islower } take-while new-var }
+		{ "T" eq } => { { isupper } take-while pop true new-bool }
+		{ "F" eq } => { { isupper } take-while pop false new-bool }
+		{ "N" eq } => { { isupper } take-while pop new-null }
+		default {
+			peek "invalid\stoken\sstart:\s" swap . error
+		}
+	] switch
+	dbq
+} def
+
+"./value.sk" import
+"\n\t\s#hello\s\n1234world" parse dbq

@@ -1,0 +1,71 @@
+"../prelude.sk" import
+
+[ :NUM :STR :TRUE :FALSE :NULL :VAR :AST ] enum
+
+:new-var { VAR swap 2 implode } def
+:new-num { NUM swap 2 implode } def
+:new-str { STR swap 2 implode } def
+:new-bool { TRUE FALSE ifl 1 implode } def
+:new-null [ NULL ] defl
+
+:=` { "=" var 2 wrap } def
+
+:to-str {
+	rev explode [
+		NUM =` => {}
+		STR =` => {}
+		TRUE =` => { "true" }
+		FALSE =` => { "false" }
+		NULL =` => { "null" }
+		default => { run' to-str }
+	] switch
+} def
+
+:to-num {
+	rev explode [
+		NUM =` => {}
+		STR =` => { 0 + }
+		TRUE =` => { 1 }
+		FALSE =` => { 0 }
+		NULL =` => { 0 }
+		default => { run' to-num }
+	] switch
+} def
+
+:to-bool {
+	rev explode [
+		NUM =` => {}
+		STR =` => {}
+		TRUE =` => { true }
+		FALSE =` => { false }
+		NULL =` => { false }
+		default => { run' to-bool }
+	] switch
+} def
+
+:dump {
+	rev explode [
+		NUM =` => { "Number(" swap . ")" . }
+		STR =` => { "String(" swap . ")" . }
+		TRUE =` => { "Boolean(true)" }
+		FALSE =` => { "Boolean(false)" }
+		NULL =` => { "Null()" }
+		VAR =` => { "Variable(" swap . ")" . }
+		AST =` => { "todo:\sAST debug" error }
+	 	default => { "invalid\stype:\s" swap . error }
+	] switch print
+} def
+
+:run { rev explode run' } def
+:run' {
+	[
+	 	NUM =` => { new-num }
+	 	STR =` => { new-str }
+	 	TRUE =` => { true new-bool }
+	 	FALSE =` => { false new-bool }
+	 	NULL =` => { new-null }
+	 	VAR =` => { dbq ( todo 1 get env swap mget ) }
+	 	AST =` => { dbq pop call }
+	 	default => { "invalid\stype:\s" swap . error }
+	] switch
+} def

@@ -1,0 +1,9 @@
+"../prelude.sk" import
+
+:eq` { "eq" var 2 wrap } def
+
+:lookup-fn {
+	[
+		"+"
+	] switch
+} def

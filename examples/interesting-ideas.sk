@@ -1,0 +1,17 @@
+"prelude.sk" import
+( a map function that allows you to access the stack before calling map )
+:map' {
+	swap []
+	{ dup2 len dup2 len ≠ } {
+		dup dup3 dup2 len get 5 dupn
+		( push everything we have onto the saved stack )
+		6 rotn a2b 5 rotn a2b rot4 a2b rot a2b
+		call
+		( remove everything from the saved stack )
+		b2a swap b2a swap b2a rot4* b2a rot5*
+		apush
+	} while
+	pop2 pop2
+} def
+
+"X" [ "A" "B" "C" ] { dup2 . } map' println

@@ -1,3 +1,4 @@
+# typed: false
 module Stick
   VERSION = '0.1'
 
@@ -21,8 +22,12 @@ module Stick
     end
   end
 
-  module_function def play(*whence, env: Environment.new)
-    Stick::Parser.new(*whence).parse.call env
+  module_function def play(code, filename=nil, env: Environment.new)
+    old_dir = Dir.pwd
+    Dir.chdir File.dirname filename if filename
+    Stick::Parser.new(*[code, filename].compact).parse.call env
+  ensure
+    Dir.chdir old_dir if filename
   end
 end
 

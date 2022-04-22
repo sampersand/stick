@@ -1,0 +1,161 @@
+:dbq { dbga 0 quit } def
+
+:1+ { 1 + } def
+:1- { 1 - } def
+:2+ { 2 + } def
+:2- { 2 - } def
+:odd? { 2 % } def
+:even? { odd? ! } def
+:zero? { 0 = } def
+:nonzero? { 0 ≠ } def
+
+:dup { 1 dupn } def
+:dup2 { 2 dupn } def
+:dup3 { 3 dupn } def
+:dup4 { 4 dupn } def
+:dupb { b2a dup a2b } def
+:dup2b { b2a dupb swap a2b } def
+:pop { 1 popn } def
+:pop2 { 2 popn } def
+:pop3 { 3 popn } def
+:pop4 { 4 popn } def
+:popb { b2a pop } def
+:pop2b { b2a popb a2b } def
+:swap { dup2 pop3 } def
+
+:swap { 2 rotn } def
+:rot { 3 rotn } def
+:rot* { rot rot } def
+:rot4 { 4 rotn } def
+:rot4* { rot4 rot4 rot4 } def
+:rot5 { 5 rotn } def
+:rot5* { rot5 rot5 rot5 rot5 } def
+:rotn { dup a2b dupn b2a 1+ popn } def
+
+:void { } def
+:{} { { } } def
+:!! { ! ! } def
+:| { ! swap ! * ! } def
+:|| { {} swap if } def
+:& { !! swap !! * } def
+:&& { {} if } def
+:if { ifl call } def
+:ifl { rot ! 1+ popn  } def
+:_while_helper {
+	dupb call
+	{ b2a dupb swap a2b call _while_helper }
+	{ popb popb } if
+} def
+:while { a2b a2b _while_helper } def
+
+:println { print "\n" print } def
+:alias { fetch def } def
+:abort { warn 1 quit } def
+:error :abort alias
+
+:defl { 1 wrap def } def
+:false 0 defl
+:true 1 defl
+
+:enum {
+	0
+	{ dup2 len dup2 ≠ } { dup2 dup2 get dup2 defl 1+ } while
+	pop pop
+} def
+
+:chars {
+	[] 
+	{ dup2 strlen dup2 len ≠ } {
+		dup dup3 dup2 len 1 substr apush
+	} while
+	pop2
+} def
+
+:apush { dup2 len swap set } def
+:implode {
+	[] 
+	{ dup2 } { dup dup3 3 + rotn apush swap 1- swap } while
+	pop2
+} def
+:explode {
+	0
+	{ dup2 len dup2 ≠ } { dup2 dup2 get rot* 1+ } while
+	pop pop
+} def
+
+:[ { stacklen a2b } def
+:] { stacklen b2a - implode } def
+
+:range {
+	swap [] rot*
+	{ dup2 dup2 ≥ } { dup3 dup2 apush 1+ } while
+	pop pop
+} def
+:times { 1- 0 swap range } def
+:rev {
+	[]
+	{ dup2 len dup2 len ≠ } {
+		dup dup3 dup
+		len dup3 len - 1-
+		get apush
+	} while
+	pop2
+} def 
+
+( :map {
+	swap []
+	{ dup2 len dup2 len ≠ } { dup dup3 dup2 len get 5 dupn call apush } while
+	pop2 pop2
+} def )
+:map {
+	swap []
+	{ dup2 len dup2 len ≠ } {
+		dup dup3 dup2 len get 5 dupn
+		( push everything we have onto the saved stack )
+		6 rotn a2b 5 rotn a2b rot4 a2b rot a2b
+		call
+		( remove everything from the saved stack )
+		b2a swap b2a swap b2a rot4* b2a rot5*
+		apush
+	} while
+	pop2 pop2
+} def
+
+:foreach {
+	swap 0
+	{ dup2 len dup2 ≠ } { dup2 dup2 get dup4 call 1+ } while
+	pop pop
+} def
+:reduce {
+	rot* 0 swap
+	{ dup2 dup4 len ≠ } { dup3 dup3 get 5 dupn call swap 1+ swap } while
+	pop2 pop2 pop2
+} def
+:filter {
+	swap [] 0
+	{ dup dup4 len ≠ } {
+		dup2 dup4 dup3 get
+		dup 7 dupn call
+		{ apush } { pop pop } if
+		1+
+	} while
+	pop pop2 pop2
+} def
+
+:sum { 0 { + } reduce } def
+:prod { 1 { * } reduce } def
+
+:any? { map sum } def
+
+
+:=> :void alias
+:default { { pop true } } def ( note this is a `defl` )
+:switch { switchl call } def
+:switchl {
+	swap 0
+	{ dup3 len dup2 > } {
+		dup2 dup4 dup3 get call
+		{ pop2 1+ get [] swap 0 } { 2+ } if
+	} while
+	pop pop2
+} def

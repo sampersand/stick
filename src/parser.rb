@@ -1,3 +1,4 @@
+# typed: false
 require_relative 'stick'
 require_relative 'types'
 
@@ -81,7 +82,7 @@ module Stick
       when /^:(?!$)/ then Scalar.new $'
 
       # Stick only has integers for numbers: no floats
-      when /^[-+]?\d+$/ then Scalar.new $&
+      when /^[-+]?\d+$/ then Scalar.new $&.to_i
 
       # Stick only has double quoted strings. Note this syntax also allows for `"foo"bar"`,
       # as strings are closed by whitespace, not `"`.

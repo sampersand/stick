@@ -1,3 +1,4 @@
+# typed: false
 require_relative 'stick'
 
 module Stick
@@ -31,13 +32,13 @@ module Stick
     define('=') { _1.to_i == _2.to_i }
     define('≠') { _1.to_i != _2.to_i }
     define('<=>') { _1.to_i <=> _2.to_i }
-    define('num2ascii') { _1.to_i.chr }
+    define('chr') { _1.to_i.chr }
     define('rand'){ rand _1.to_i.._2.to_i }
 
     ## STRING METHODS
     define('.') { _1.to_s + _2.to_s }
     define('x') { _1.to_s * _2.to_i }
-    define('le') { _1.to_s <  _2.to_s }
+    define('lt') { _1.to_s <  _2.to_s }
     define('le') { _1.to_s <= _2.to_s }
     define('gt') { _1.to_s >  _2.to_s }
     define('ge') { _1.to_s >= _2.to_s }
@@ -46,14 +47,14 @@ module Stick
     define('cmp') { _1.to_s <=> _2.to_s }
     define('substr') { _1.to_s[_2.to_i, _3.to_i] }
     define('strlen') { _1.to_s.length }
-    define('ascii2num') { _1.to_s.ord }
+    define('ord') { _1.to_s.ord }
 
     ## ARRAY METHODS
     define('[]') { Scalar.new [] }
     define('get') { _1.to_a[_2.to_i] }
-    define('set') { _1.to_a[_2.to_i] = _3 }
-    define('del') { _1.delete_at _2.to_i }
-    define('len') { _1.length }
+    define('set', push: false) { _1.to_a[_2.to_i] = _3 }
+    define('del') { _1.to_a.delete_at _2.to_i }
+    define('len') { _1.to_a.length }
 
     ## VARIABLE METHODS
     define('fetch', env: true) { _1.fetch_variable _2 }
@@ -66,11 +67,12 @@ module Stick
 
     ## STACK MANIPULATION
     define('dupn', env: true) { _1.stack1.fetch -_2.to_i }
-    define('popn', env: true) { _1.stack1.delete_at -_2.to_i }
+    define('popn', env: true, push: false) { _1.stack1.delete_at -_2.to_i }
     define('dbga', env: true, push: false) { pp _1.stack1 }
     define('dbgb', env: true, push: false) { pp _1.stack2 }
     define('a2b', env: true, push: false) { _1.stack2.push _2 }
     define('b2a', env: true) { _1.stack2.pop }
+    define('stacklen', env: true) { _1.stack1.length }
 
     ## I/O METHODS
     define('quit') { exit _1.to_i }
@@ -91,8 +93,6 @@ module Stick
     define('import', env: true, push: false) do
       Stick.play File.read(filename = _2.to_s), filename, env: _1
     end
-
-    define('ret') { throw :ret, _1.to_i }
 
     attr_reader :stack1, :stack2
 
