@@ -50,7 +50,7 @@ module Stick
       name: String,
       env: T::Boolean,
       push: T::Boolean,
-      code: T.proc.params()).void }
+      code: Proc).void }
     def initialize(name, env: false, push: true, &code)
       @name = name
       @code = code

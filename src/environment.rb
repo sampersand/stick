@@ -111,7 +111,7 @@ module Stick
       @callstack = []
     end
 
-    sig{ params(T::Array[Group]).void }
+    sig{ params(T::Array[Group]).returns }
     def with_stackframe(frame)
       @callstack.push frame
       yield
