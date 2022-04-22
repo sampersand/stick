@@ -1,12 +1,7 @@
-# typed: true
-require 'sorbet-runtime'
 require_relative 'stick'
-
-return if defined? Stick::Environment
 
 module Stick
   class Environment
-    extend T::Sig
 
     class UnknownVariable < RunError
       attr_reader :name
@@ -18,7 +13,7 @@ module Stick
 
     DEFAULT_VARIABLES = {}
     def self.define(name, ...)
-      DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, ...)
+      DEFAULT_VARIABLES[name] = Stick::NativeFunction.new(name, ...)
     end
 
     ## BOOLEAN METHOD
@@ -50,7 +45,7 @@ module Stick
     define('eq') { _1.to_s == _2.to_s }
     define('ne') { _1.to_s != _2.to_s }
     define('cmp') { _1.to_s <=> _2.to_s }
-    define('substr') { _1.to_s[_2.to_i, _3.to_i] }
+    define('substr') { _1.to_s[_2.to_i, _3.to_i] || "" }
     define('strlen') { _1.to_s.length }
     define('ord') { _1.to_s.ord }
 
@@ -99,10 +94,8 @@ module Stick
       Stick.play File.read(filename = _2.to_s), filename, env: _1
     end
 
-    sig{ returns(T::Array[Value]) }
-    attr_reader :stack1, :stack2
+    attr_reader :stack1, :stack2, :variables
 
-    sig{ void }
     def initialize
       @stack1 = []
       @stack2 = []
@@ -111,7 +104,6 @@ module Stick
       @callstack = []
     end
 
-    sig{ params(T::Array[Group]).void }
     def with_stackframe(frame)
       @callstack.push frame
       yield

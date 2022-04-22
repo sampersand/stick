@@ -1,4 +1,3 @@
-# typed: false
 module Stick
   VERSION = '0.1'
 
@@ -32,6 +31,6 @@ module Stick
 end
 
 
-require_relative 'parser'
-require_relative 'environment'
-require_relative 'types'
+require_relative 'parser' unless defined? Stick::Parser
+require_relative 'environment' unless defined? Stick::Environment
+require_relative 'types' unless defined? Stick::Types

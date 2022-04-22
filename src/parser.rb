@@ -1,4 +1,3 @@
-# typed: false
 require_relative 'stick'
 require_relative 'types'
 

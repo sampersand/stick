@@ -18,7 +18,7 @@
 :isupper {
 	dup "_" eq {
 		dup "A" ge { "Z" le } { pop false } if
-	}
+	} ||
 } def
 
 :take-while {
@@ -26,6 +26,11 @@
 	rot
 	{ peek dup4 call } { peek swap rot* . swap advance } while
 	swap pop3
+} def
+
+
+:parse-function {
+
 } def
 
 :parse {
@@ -37,12 +42,11 @@
 		{ "T" eq } => { { isupper } take-while pop true new-bool }
 		{ "F" eq } => { { isupper } take-while pop false new-bool }
 		{ "N" eq } => { { isupper } take-while pop new-null }
-		default {
-			peek "invalid\stoken\sstart:\s" swap . error
-		}
+		{ isupper } => { peek swap { isupper } take-while pop swap parse-function }
+		default { peek swap advance swap parse-function }
 	] switch
 	dbq
 } def
 
 "./value.sk" import
-"\n\t\s#hello\s\n1234world" parse dbq
+"\n\t\s#hello\s\nWORLD12\n3a" parse dbq
