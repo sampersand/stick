@@ -1,34 +1,50 @@
+# typed: ignore
 require_relative 'stick'
 require_relative 'types'
 
+return if defined? Stick::Parser
+
 module Stick
   class SourceLocation
-    attr_reader :file, :line
+    extend T::Sig
 
+    sig{ returns(String) }
+    attr_reader :file
+
+    sig{ returns(Integer) }
+    attr_reader :line
+
+    sig{ params(file: String, line: Integer).void }
     def initialize(file, line)
       @file = file
       @line = line
     end
 
+    sig{ returns(String) }
     def to_s = "#{file}:#{line}"
   end
 
   class Parser
+    extend T::Sig
+
     class ParseError < Error; end
 
-    def initialize(stream, filename='<eval>')
+    sig{ params(stream: String, filename: String).void }
+    def initialize(stream, filename)
       @stream = stream
       @filename = filename
-      @lineno = 1
+      @lineno = T.let(1, Integer)
     end
 
+    sig{ returns(SourceLocation) }
     def source_location
       SourceLocation.new @filename, @lineno
     end
 
+
+    sig{ returns(Group) }
     def parse
-      begin_source_location = source_location
-      last_source_location = nil
+      last_source_location = begin_source_location = source_location
 
       acc = []
       catch :close do
@@ -46,17 +62,20 @@ module Stick
 
     private
 
+    sig{ returns(T.nilable(String)) }
     def next_word
-      @lineno += @stream.slice!(/\A\s*/).count "\n"
+      @lineno += @stream.slice!(/\A\s*/)&.count("\n") || 0
       @stream.slice! /\A\S+/
     end
 
+    sig{ params(message: String, source: SourceLocation).returns(T.noreturn) }
     def parse_error(message, source=source_location)
       raise ParseError, "#{source}: #{message}", caller(1)
     end
 
     # We need `next` as we `throw :close` to indicate group end,
     # and we don't want to have an uncaught `throw` leaking out.
+    sig{ returns(T.nilable(Value)) }
     def next
       case token = next_word
 
@@ -78,7 +97,7 @@ module Stick
         self.next
 
       # `:foobar` is shorthand for `"foobar"`, but without escapes.
-      when /^:(?!$)/ then Scalar.new $'
+      when /^:(?!$)/ then Scalar.new T.must $'
 
       # Stick only has integers for numbers: no floats
       when /^[-+]?\d+$/ then Scalar.new $&.to_i

@@ -1,10 +1,17 @@
+# typed: strict
 module Stick
+  extend T::Sig
   VERSION = '0.1'
 
   class Error < RuntimeError; end
 
   class RunError < Error
+    extend T::Sig
+
+    sig{ returns(T::Array[SourceLocation]) }
     attr_reader :backtrace
+
+    sig{ params(message: String, backtrace: T::Array[SourceLocation]).void }
     def initialize(message, backtrace)
       super message
 
@@ -12,21 +19,23 @@ module Stick
       @backtrace = backtrace
     end
 
+    sig{ returns(String) }
     def full_message
       msg = "0 #{backtrace.last}: #{message}"
-      backtrace[..-2].reverse.each_with_index do |idx, bt|
+      backtrace[..-2]&.reverse&.each_with_index do |idx, bt|
         msg.concat "\n#{idx} #{bt}"
       end
       msg
     end
   end
 
-  module_function def play(code, filename=nil, env: Environment.new)
+  sig{ params(code: String, filename: T.nilable(String), env: Environment).void }
+  module_function def play(code, filename=nil, env:)
     old_dir = Dir.pwd
     Dir.chdir File.dirname filename if filename
-    Stick::Parser.new(*[code, filename].compact).parse.call env
+    Stick::Parser.new(code, filename || '<eval>').parse.call env
   ensure
-    Dir.chdir old_dir if filename
+    Dir.chdir T.must old_dir if filename
   end
 end
 
