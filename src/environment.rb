@@ -1,9 +1,13 @@
-# typed: true
+# typed: strict
 require 'sorbet-runtime'
 
 module Stick
   class Environment
     extend T::Sig
+    @variables = T.let({}, T::Hash[String, Value])
+    @stack1 = T.let([], T::Array[Value])
+    @stack2 = T.let([], T::Array[Value])
+    @callstack = T.let([], T::Array[SourceLocation])
 
     class UnknownVariable < RunError
       extend T::Sig
@@ -141,31 +145,31 @@ module Stick
     ## VARIABLE METHODS
     define('fetch') {
       @variables.fetch (name=name.to_s) do
-        raise UnknownVariable.new name, callstack
+        raise UnknownVariable.new name, @callstack.clone
       end
     }
 
     define('var') { Variable.new _1.to_s }
 
     ## BLOCK METHODS
-    define('wrap') { Group.new pop(_1.to_i), SourceLocation.new("<constructed>", 1) }
+    define('wrap') { Group.new @stack1.pop(_1.to_i), SourceLocation.new("<constructed>", 1) }
     define 'unwrap' do 
       raise RunError, "#{_1.class} is not a Group" unless _1.is_a? Group
       _1.body
     end
 
     define('call', push: false) do 
-      T.cast(_1, T.any(NativeFunction, Group)).call self 
+      T.cast(_1, T.any(NativeFunction, Group)).call T.cast(self, Environment)
     end
 
     ## STACK MANIPULATION
-    define('dupn') { stack1.fetch -_1.to_i }
-    define('popn', push: false) { stack1.delete_at -_1.to_i }
-    define('dbga', push: false) { pp stack1 }
-    define('dbgb', push: false) { pp stack2 }
-    define('a2b', push: false) { stack2.push _1 }
-    define('b2a') { stack2.pop }
-    define('stacklen') { stack1.length }
+    define('dupn') { @stack1.fetch -_1.to_i }
+    define('popn', push: false) { @stack1.delete_at -_1.to_i }
+    define('dbga', push: false) { pp @stack1 }
+    define('dbgb', push: false) { pp @stack2 }
+    define('a2b', push: false) { @stack2.push _1 }
+    define('b2a') { @stack2.pop }
+    define('stacklen') { @stack1.length }
 
     ## I/O METHODS
     define('quit') { exit _1.to_i }
@@ -190,14 +194,14 @@ module Stick
     # end
 
     ## VARIABLE MANIPULATION
-    define('undef', push: false) { variables.delete _1.to_s }
-    define('def', push: false) { variables[_1.to_s] = _2 }
-    define('def?') { variables.include? _1.to_s }
+    define('undef', push: false) { @variables.delete _1.to_s }
+    define('def', push: false) { @variables[_1.to_s] = _2 }
+    define('def?') { @variables.include? _1.to_s }
 
     ## MISC METHODS
     define('kindof') { _1.class.to_s }
     define('import', push: false) do
-      Stick.play File.read(filename = _1.to_s), filename, env: self
+      Stick.play File.read(filename = _1.to_s), filename, env: T.cast(self, Environment)
     end
 =begin
     ## METHODS THAT COULD BE DEFINED NATIVELY
