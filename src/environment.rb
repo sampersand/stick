@@ -94,6 +94,17 @@ module Stick
       DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, **kw, &block)
     end
 
+    sig{
+      params(
+        name: String,
+        kw: T::Boolean,
+        block: T.proc.params(a: Environment, b: Value, c: Value, d: Value).void
+      ).void
+    }
+    def self.define_with_env(name, &block)
+      DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, push: false, &block)
+    end
+
     ## BOOLEAN METHOD
     define '!' do
       raise RunError, "#{_2.class} is not a scalar" unless _2.is_a? Scalar
