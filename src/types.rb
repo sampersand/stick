@@ -11,21 +11,65 @@ module Stick
   class Value
     extend T::Sig
 
+    sig{ params(value: T.any(T::Boolean, Integer, String, T::Array[Value], Value)).returns(Value) }
+    def self.from(value)
+      case value
+      when true then Scalar.new 1
+      when false then Scalar.new 0
+      when Integer, String then Scalar.new value
+      when Array then List.new value
+      when Value then value
+      else T.absurd value
+      end
+    end
+
     sig{ params(env: Environment).void }
     def run(env) = env.push(self)
 
     sig{ returns(String) }
-    def to_s = raise("undefined for #{self.class}")
+    def to_s = raise("#{__method__} undefined for #{self.class}")
 
     sig{ returns(Integer) }
-    def to_i = raise("undefined for #{self.class}")
+    def to_i = raise("#{__method__} undefined for #{self.class}")
 
     sig{ returns(T::Array[Value]) }
-    def to_a = raise("undefined for #{self.class}")
+    def to_a = raise("#{__method__} undefined for #{self.class}")
+  end
+
+  class List < Value
+    sig{ returns(T::Array[Value]) }
+    attr_accessor :elements
+
+    sig{ params(elements: T::Array[Value]).void }
+    def initialize(elements=[])
+      @elements = elements
+    end
+
+    sig{ returns(String) }
+    def inspect = @elements.inspect
+
+    sig{ returns(String) }
+    def to_s = @elements.to_s
+
+    alias to_a elements
+
+    sig{ params(idx: Integer).returns(T.nilable(Value)) }
+    def [](idx) = @elements[idx]
+
+    sig{ params(idx: Integer, value: Value).void }
+    def []=(idx, value)
+      @elements[idx] = value
+    end
+
+    sig{ params(idx: Integer).returns(T.nilable(Value)) }
+    def delete_at(idx) = @elements.delete_at(idx)
+
+    sig{ returns(Integer) }
+    def length = @elements.length
   end
 
   class Scalar < Value
-    sig{ params(value: T.any(Integer, String, T::Array[Value])).void }
+    sig{ params(value: T.any(Integer, String)).void }
     def initialize(value)
       @value = value
     end
@@ -37,21 +81,10 @@ module Stick
     def to_s = @value.to_s
 
     sig{ returns(Integer) }
-    def to_i
-      raise RunError, "cannot use an array as an int" if @value.is_a? Array
-      @value.to_i
-    end
-
-    sig{ returns(T::Array[Value]) }
-    def to_a
-      raise RunError, "cannot use #{@value.class} as array" unless @value.is_a? Array
-      @value
-    end
+    def to_i = @value.to_i
 
     sig{ returns(T::Boolean) }
-    def truthy?
-      @value != '0' && @value != '' && @value != 0
-    end
+    def truthy? = @value != '0' && @value != '' && @value != 0
   end
 
   class NativeFunction < Value
@@ -63,7 +96,7 @@ module Stick
       @name = name
       @code = code
       @push_result = push
-      @arity = T.let @code.arity, Integer
+      @arity = T.let @code.arity - 1, Integer
     end
 
     sig{ returns(String) }
@@ -71,17 +104,9 @@ module Stick
 
     sig{ params(env: Environment).void }
     def call(env)
-      args = env.pop @arity
-      result = T.unsafe(env).instance_exec(*args, &@code)
-      return unless @push_result
-
-      env.push case result
-               when true then Scalar.new 1
-               when false then Scalar.new 0
-               when Integer, String, Array then Scalar.new result
-               when Value then result
-               else fail "<internal error> unknown result: #{result.inspect} for function #@name: #{args}"
-               end
+      args = env.pop(@arity)
+      result = T.unsafe(@code).call(env, *args)
+      env.push Value.from result if @push_result
     end
   end
 

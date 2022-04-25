@@ -4,10 +4,6 @@ require 'sorbet-runtime'
 module Stick
   class Environment
     extend T::Sig
-    @variables = T.let({}, T::Hash[String, Value])
-    @stack1 = T.let([], T::Array[Value])
-    @stack2 = T.let([], T::Array[Value])
-    @callstack = T.let([], T::Array[SourceLocation])
 
     class UnknownVariable < RunError
       extend T::Sig
@@ -90,7 +86,8 @@ module Stick
       params(
         name: String,
         kw: T::Boolean,
-        block: T.untyped # proc.params(arg0: Value, arg1: Value, arg2: Value).returns(T.untyped)
+        block: T.proc.params(a: Environment, b: Value, c: Value, d: Value)
+          .returns(T.any(Integer, String, T::Array[Value], T::Boolean, Value))
       ).void
     }
     def self.define(name, **kw, &block)
@@ -99,86 +96,82 @@ module Stick
 
     ## BOOLEAN METHOD
     define '!' do
-      raise RunError, "#{_1.class} is not a scalar" unless _1.is_a? Scalar
-      !_1.truthy?
+      raise RunError, "#{_2.class} is not a scalar" unless _2.is_a? Scalar
+      !_2.truthy?
     end
 
     ## NUMBER METHODS
-    define('~') { -_1.to_i }
-    define('+') { _1.to_i + _2.to_i }
-    define('-') { _1.to_i - _2.to_i }
-    define('*') { _1.to_i * _2.to_i }
-    define('/') { _1.to_i / _2.to_i }
-    define('%') { _1.to_i % _2.to_i }
-    define('^') { _1.to_i ** _2.to_i }
-    define('<') { _1.to_i <  _2.to_i }
-    define('≤') { _1.to_i <= _2.to_i }
-    define('>') { _1.to_i >  _2.to_i }
-    define('≥') { _1.to_i >= _2.to_i }
-    define('=') { _1.to_i == _2.to_i }
-    define('≠') { _1.to_i != _2.to_i }
-    define('<=>') { _1.to_i <=> _2.to_i }
-    define('chr') { _1.to_i.chr }
-    define('rand'){ rand _1.to_i.._2.to_i }
+    define('~') { -_2.to_i }
+    define('+') { _2.to_i + _3.to_i }
+    define('-') { _2.to_i - _3.to_i }
+    define('*') { _2.to_i * _3.to_i }
+    define('/') { _2.to_i / _3.to_i }
+    define('%') { _2.to_i % _3.to_i }
+    define('^') { Integer _2.to_i ** _3.to_i }
+    define('<') { _2.to_i <  _3.to_i }
+    define('≤') { _2.to_i <= _3.to_i }
+    define('>') { _2.to_i >  _3.to_i }
+    define('≥') { _2.to_i >= _3.to_i }
+    define('=') { _2.to_i == _3.to_i }
+    define('≠') { _2.to_i != _3.to_i }
+    define('<=>') { _2.to_i <=> _3.to_i }
+    define('chr') { _2.to_i.chr }
+    define('rand'){ rand _2.to_i.._3.to_i }
 
     ## STRING METHODS
-    define('.') { _1.to_s + _2.to_s }
-    define('x') { _1.to_s * _2.to_i }
-    define('lt') { _1.to_s <  _2.to_s }
-    define('le') { _1.to_s <= _2.to_s }
-    define('gt') { _1.to_s >  _2.to_s }
-    define('ge') { _1.to_s >= _2.to_s }
-    define('eq') { _1.to_s == _2.to_s }
-    define('ne') { _1.to_s != _2.to_s }
-    define('cmp') { _1.to_s <=> _2.to_s }
-    define('substr') { _1.to_s[_2.to_i, _3.to_i] }
-    define('strlen') { _1.to_s.length }
-    define('ord') { _1.to_s.ord }
+    define('.') { _2.to_s + _3.to_s }
+    define('x') { _2.to_s * _3.to_i }
+    define('lt') { _2.to_s <  _3.to_s }
+    define('le') { _2.to_s <= _3.to_s }
+    define('gt') { _2.to_s >  _3.to_s }
+    define('ge') { _2.to_s >= _3.to_s }
+    define('eq') { _2.to_s == _3.to_s }
+    define('ne') { _2.to_s != _3.to_s }
+    define('cmp') { T.must _2.to_s <=> _3.to_s }
+    define('substr') { _2.to_s[_3.to_i, _4.to_i] || "" }
+    define('strlen') { _2.to_s.length }
+    define('ord') { _2.to_s.ord }
 
     ## ARRAY METHODS
-    define('[]') { Scalar.new [] }
-    define('get') { _1.to_a[_2.to_i] }
-    define('set', push: false) { _1.to_a[_2.to_i] = _3 }
-    define('del') { _1.to_a.delete_at _2.to_i }
-    define('len') { _1.to_a.length }
+    define('[]') { _1; List.new }
+    define('get') { T.cast(_2, List).to_a.fetch _3.to_i }
+    define('set', push: false) { T.cast(_2, List)[_3.to_i] = _4 }
+    define('del') { T.cast(_2, List).delete_at(_3.to_i) || '' }
+    define('len') { T.cast(_2, List).length }
 
     ## VARIABLE METHODS
-    define('fetch') {
-      @variables.fetch (name=name.to_s) do
-        raise UnknownVariable.new name, @callstack.clone
-      end
-    }
-
-    define('var') { Variable.new _1.to_s }
+    define('fetch') { _1.fetch_variable _2.to_s }
+    define('var') { Variable.new _2.to_s }
 
     ## BLOCK METHODS
-    define('wrap') { Group.new @stack1.pop(_1.to_i), SourceLocation.new("<constructed>", 1) }
+    define('wrap') { Group.new _1.stack1.pop(_2.to_i), SourceLocation.new("<constructed>", 1) }
     define 'unwrap' do 
-      raise RunError, "#{_1.class} is not a Group" unless _1.is_a? Group
-      _1.body
+      raise RunError, "#{_2.class} is not a Group" unless _2.is_a? Group
+      _2.body
     end
 
     define('call', push: false) do 
-      T.cast(_1, T.any(NativeFunction, Group)).call T.cast(self, Environment)
+      T.cast(_2, T.any(NativeFunction, Group)).call _1
+      0
     end
 
     ## STACK MANIPULATION
-    define('dupn') { @stack1.fetch -_1.to_i }
-    define('popn', push: false) { @stack1.delete_at -_1.to_i }
-    define('dbga', push: false) { pp @stack1 }
-    define('dbgb', push: false) { pp @stack2 }
-    define('a2b', push: false) { @stack2.push _1 }
-    define('b2a') { @stack2.pop }
-    define('stacklen') { @stack1.length }
+    define('dupn') { _1.stack1.fetch -_2.to_i }
+    define('popn', push: false) { _1.stack1.delete_at(-_2.to_i) or fail "got out of bounds" }
+    define('dbga', push: false) { pp _1.stack1 }
+    define('dbgb', push: false) { pp _1.stack2 }
+    define('a2b', push: false) { _1.stack2.push _2 }
+    define('b2a') { _1.stack2.pop or fail "b2a out of bounds" }
+    define('stacklen') { _1.stack1.length }
 
     ## I/O METHODS
-    define('quit') { exit _1.to_i }
-    define('warn', push: false) { warn _1.to_s }
-    define('print', push: false) { print _1 }
-    define('println', push: false) { print _1, "\n" }
+    define('quit') { exit _2.to_i }
+    define('warn', push: false) { warn _2.to_s; 0 }
+    define('print', push: false) { print _2; 0 }
+    define('println', push: false) { print _2, "\n"; 0 }
     define('getline'){ gets.chomp }
-    define('system'){ `#{_1}` }
-    define('read-file') { File.read _1.to_s }
+    define('system'){ `#{_2}` }
+    define('read-file') { File.read _2.to_s }
 
     # ## VARIABLE MANIPULATION
     # define 'undef', push: false do |name|
@@ -194,25 +187,26 @@ module Stick
     # end
 
     ## VARIABLE MANIPULATION
-    define('undef', push: false) { @variables.delete _1.to_s }
-    define('def', push: false) { @variables[_1.to_s] = _2 }
-    define('def?') { @variables.include? _1.to_s }
+    define('undef', push: false) { _1.variables.delete _2.to_s; 0 }
+    define('def', push: false) { _1.variables[_2.to_s] = _3 }
+    define('def?') { _1.variables.include? _2.to_s }
 
     ## MISC METHODS
-    define('kindof') { _1.class.to_s }
+    define('kindof') { _2.class.to_s }
     define('import', push: false) do
-      Stick.play File.read(filename = _1.to_s), filename, env: T.cast(self, Environment)
+      Stick.play File.read(filename = _2.to_s), filename, env: _1
+      0
     end
 =begin
     ## METHODS THAT COULD BE DEFINED NATIVELY
-    define('1+') { _1.to_i + 1 }
-    define('1-') { _1.to_i - 1 }
-    define('2+') { _1.to_i + 2 }
-    define('2-') { _1.to_i - 2 }
-    define('odd?') { _1.to_i.odd? }
-    define('even?') { _1.to_i.even? }
-    define('zero?') { _1.to_i.zero? }
-    define('nonzero?') { _1.to_i.nonzero? }
+    define('1+') { _2.to_i + 1 }
+    define('1-') { _2.to_i - 1 }
+    define('2+') { _2.to_i + 2 }
+    define('2-') { _2.to_i - 2 }
+    define('odd?') { _2.to_i.odd? }
+    define('even?') { _2.to_i.even? }
+    define('zero?') { _2.to_i.zero? }
+    define('nonzero?') { _2.to_i.nonzero? }
     define('dup') { self.stack1.fetch -1 }
     define('dup2') { self.stack1.fetch -2 }
     define('dup3') { self.stack1.fetch -3 }
@@ -225,7 +219,7 @@ module Stick
     define('pop4', push: false) { self.stack1.delete_at -4 }
     define('popb', push: false) { self.stack2.delete_at -1 }
     define('pop2b', push: false) { self.stack2.delete_at -2 }
-    define('swap', push: false) { self.stack1.concat [_2, _1] }
+    define('swap', push: false) { self.stack1.concat [_3, _2] }
 #:swap { 2 rotn } def
 #:rot { 3 rotn } def
 #:rot* { rot rot } def
@@ -236,24 +230,24 @@ module Stick
 #:rotn { dup a2b dupn b2a 1+ popn } def
     define('void', push: false) { }
     define('{}') { Group.new [], SourceLocation.new("<constructed>", 1) }
-    define('!!') { !(_1).truthy? }
-    define('|') { (_1).truthy? || (_2).truthy? }
-    define('||') { (_1).truthy? ? _1 : _2.call }
-    define('&') { (_1).truthy? && (_2).truthy? }
-    define('&&') { (_1).truthy? ? _2.call : _1 }
-    define('if') { ((_1).truthy? ? _2 : _3).call }
-    define('ifl') { (_1).truthy? ? _2 : _3 }
-    define('while') { _2.call while (_1).truthy? }
-    define('println', push: false) { print _1, "\n" }
+    define('!!') { !(_2).truthy? }
+    define('|') { (_2).truthy? || (_3).truthy? }
+    define('||') { (_2).truthy? ? _2 : _3.call }
+    define('&') { (_2).truthy? && (_3).truthy? }
+    define('&&') { (_2).truthy? ? _3.call : _2 }
+    define('if') { ((_2).truthy? ? _3 : _4).call }
+    define('ifl') { (_2).truthy? ? _3 : _4 }
+    define('while') { _3.call while (_2).truthy? }
+    define('println', push: false) { print _2, "\n" }
 # :alias { fetch def } def
-    define('abort') { abort _1.to_s }
-    define('die') { abort _1.to_s }
+    define('abort') { abort _2.to_s }
+    define('die') { abort _2.to_s }
 # :defl { 1 wrap def } def
     define('true') { 1 }
     define('false') { 0 }
-    define('chars') { _1.chars.map { |x| Scalar.new x } }
-    define('str-contains') { _2.to_s.include? _1.to_s[0] }
-    define('apush') { _1.to_a.push _2 }
+    define('chars') { _2.chars.map { |x| Scalar.new x } }
+    define('str-contains') { _3.to_s.include? _2.to_s[0] }
+    define('apush') { _2.to_a.push _3 }
 
 # :implode {
 #   [] 
