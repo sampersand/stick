@@ -2,35 +2,14 @@
 require 'sorbet-runtime'
 T::Configuration.default_checked_level = :tests
 
+require_relative 'parser'
+require_relative 'environment'
+require_relative 'types'
+require_relative 'error'
+
 module Stick
   extend T::Sig
   VERSION = '0.1'
-
-  class Error < RuntimeError; end
-
-  class RunError < Error
-    extend T::Sig
-
-    sig{ returns(T::Array[SourceLocation]) }
-    attr_reader :backtrace
-
-    sig{ params(message: String, backtrace: T::Array[SourceLocation]).void }
-    def initialize(message, backtrace)
-      super message
-
-      @message = message
-      @backtrace = backtrace
-    end
-
-    sig{ returns(String) }
-    def full_message
-      msg = "0 #{backtrace.last}: #{message}"
-      backtrace[..-2]&.reverse&.each_with_index do |idx, bt|
-        msg.concat "\n#{idx} #{bt}"
-      end
-      msg
-    end
-  end
 
   sig{ params(code: String, filename: T.nilable(String), env: Environment).void }
   module_function def play(code, filename=nil, env:)
@@ -41,8 +20,3 @@ module Stick
     Dir.chdir T.must old_dir if filename
   end
 end
-
-
-require_relative 'parser' unless defined? Stick::Parser
-require_relative 'environment' unless defined? Stick::Environment
-require_relative 'types' unless defined? Stick::Types

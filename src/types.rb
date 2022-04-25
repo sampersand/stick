@@ -1,4 +1,4 @@
-# typed: true
+# typed: strict
 require 'sorbet-runtime'
 require_relative 'stick'
 
@@ -7,6 +7,7 @@ return if defined? Stick::Value
 module Stick
   extend T::Sig
 
+  # Generic value type
   class Value
     extend T::Sig
 
@@ -70,8 +71,8 @@ module Stick
 
     sig{ params(env: Environment).void }
     def call(env)
-      args = T.cast @arity.times.map { env.popn 0 }.reverse, T::Array[T.any(Environment, Value)]
-      result = T.unsafe(@code).call(env, *args)
+      args = @arity.times.map { env.popn 0 }.reverse
+      result = env.instance_exec(env, *args, &T.unsafe(@code))
       return unless @push_result
 
       env.push case result

@@ -1,8 +1,5 @@
-# typed: ignore
+# typed: true
 require 'sorbet-runtime'
-require_relative 'stick'
-
-return if defined? Stick::Environment
 
 module Stick
   class Environment
@@ -22,112 +19,6 @@ module Stick
     end
 
     DEFAULT_VARIABLES = T.let({}, T::Hash[String, NativeFunction])
-
-    class << self
-      extend T::Sig
-      sig{
-        params(
-          name: String,
-          kw: T::Boolean,
-          block: T.proc.params(arg0: Environment, arg1: Value, arg2: Value, arg3: Value)
-            .returns(T.untyped)
-        ).void
-      }
-      def define(name, **kw, &block)
-        DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, **kw, &block)
-      end
-    end
-
-
-    define('println', push: false) { print _2, "\n" }
-    define('dup') { T.must _1.stack1.last }
-    define('1-') { _2.to_i - 1 }
-    define('swap', push: false) { _1.stack1.concat [_3, _2] }
-    define('&&', push: false) { 
-      if T.cast(_2, Scalar).truthy?
-        T.cast(_3, T.any(NativeFunction, Group)).call(_1)
-      end
-    }
-
-    ## BOOLEAN METHOD
-    define('!') { !T.cast(_2, Scalar).truthy? }
-
-    ## NUMBER METHODS
-    define('~') { -_2.to_i }
-    define('+') { _2.to_i + _3.to_i }
-    define('-') { _2.to_i - _3.to_i }
-    define('*') { _2.to_i * _3.to_i }
-    define('/') { _2.to_i / _3.to_i }
-    define('%') { _2.to_i % _3.to_i }
-    define('^') { _2.to_i ** _3.to_i }
-    define('<') { _2.to_i <  _3.to_i }
-    define('≤') { _2.to_i <= _3.to_i }
-    define('>') { _2.to_i >  _3.to_i }
-    define('≥') { _2.to_i >= _3.to_i }
-    define('=') { _2.to_i == _3.to_i }
-    define('≠') { _2.to_i != _3.to_i }
-    define('<=>') { _2.to_i <=> _3.to_i }
-    define('chr') { _2.to_i.chr }
-    define('rand'){ rand _2.to_i.._3.to_i }
-
-    ## STRING METHODS
-    define('.') { _2.to_s + _3.to_s }
-    define('x') { _2.to_s * _3.to_i }
-    define('lt') { _2.to_s <  _3.to_s }
-    define('le') { _2.to_s <= _3.to_s }
-    define('gt') { _2.to_s >  _3.to_s }
-    define('ge') { _2.to_s >= _3.to_s }
-    define('eq') { _2.to_s == _3.to_s }
-    define('ne') { _2.to_s != _3.to_s }
-    define('cmp') { _2.to_s <=> _3.to_s }
-    define('substr') { _2.to_s[_3.to_i, _4.to_i] }
-    define('strlen') { _2.to_s.length }
-    define('ord') { _2.to_s.ord }
-
-    ## ARRAY METHODS
-    define('[]') { Scalar.new [] }
-    define('get') { _2.to_a[_3.to_i] }
-    define('set', push: false) { _2.to_a[_3.to_i] = _4 }
-    define('del') { _2.to_a.delete_at _3.to_i }
-    define('len') { _2.to_a.length }
-
-    ## VARIABLE METHODS
-    define('fetch') { _1.fetch_variable _2.to_s }
-    define('var') { Variable.new _2.to_s }
-
-    ## BLOCK METHODS
-    define('wrap') { Group.new _1.pop(_2.to_i), SourceLocation.new("<constructed>", 1) }
-    define('unwrap') { T.cast(_2, Group).body }
-    define('call', push: false) { T.cast(_2, T.any(NativeFunction, Group)).call _1 }
-
-    ## STACK MANIPULATION
-    define('dupn') { _1.stack1.fetch -_2.to_i }
-    define('popn', push: false) { _1.stack1.delete_at -_2.to_i }
-    define('dbga', push: false) { pp _1.stack1 }
-    define('dbgb', push: false) { pp _1.stack2 }
-    define('a2b', push: false) { _1.stack2.push _2 }
-    define('b2a') { _1.stack2.pop }
-    define('stacklen') { _1.stack1.length }
-
-    ## I/O METHODS
-    define('quit') { exit _2.to_i }
-    define('warn', push: false) { warn _2.to_s }
-    define('print', push: false) { print _2 }
-    define('getline'){ gets.chomp }
-    define('system'){ `#{_2}` }
-    define('read-file') { File.read _2.to_s }
-
-    ## VARIABLE MANIPULATION
-    define('undef', push: false) { _1.delete_variable _2.to_s }
-    define('def', push: false) { _1.define_variable _2.to_s, _3 }
-    define('def?') { _1.variable_defined? _2.to_s }
-
-
-    ## MISC METHODS
-    define('kindof') { _2.class.to_s }
-    define('import', push: false) do
-      Stick.play File.read(filename = _2.to_s), filename, env: _1
-    end
 
     sig{ returns(T::Array[Value]) }
     attr_reader :stack1
@@ -187,5 +78,250 @@ module Stick
         raise UnknownVariable.new name, callstack
       end
     end
+
+    class << self
+      extend T::Sig
+      sig{
+        params(
+          name: String,
+          kw: T::Boolean,
+          block: T.proc.params(arg0: Environment, arg1: Value, arg2: Value, arg3: Value)
+            .returns(T.untyped)
+        ).void
+      }
+      def define(name, **kw, &block)
+        DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, **kw, &block)
+      end
+    end
+
+    ## BOOLEAN METHOD
+    define '!' do
+      raise RunError, "#{_2.class} is not a scalar" unless _2.is_a? Scalar
+      !_2.truthy?
+    end
+
+    ## NUMBER METHODS
+    define('~') { -_2.to_i }
+    define('+') { _2.to_i + _3.to_i }
+    define('-') { _2.to_i - _3.to_i }
+    define('*') { _2.to_i * _3.to_i }
+    define('/') { _2.to_i / _3.to_i }
+    define('%') { _2.to_i % _3.to_i }
+    define('^') { _2.to_i ** _3.to_i }
+    define('<') { _2.to_i <  _3.to_i }
+    define('≤') { _2.to_i <= _3.to_i }
+    define('>') { _2.to_i >  _3.to_i }
+    define('≥') { _2.to_i >= _3.to_i }
+    define('=') { _2.to_i == _3.to_i }
+    define('≠') { _2.to_i != _3.to_i }
+    define('<=>') { _2.to_i <=> _3.to_i }
+    define('chr') { _2.to_i.chr }
+    define('rand'){ rand _2.to_i.._3.to_i }
+
+    ## STRING METHODS
+    define('.') { _2.to_s + _3.to_s }
+    define('x') { _2.to_s * _3.to_i }
+    define('lt') { _2.to_s <  _3.to_s }
+    define('le') { _2.to_s <= _3.to_s }
+    define('gt') { _2.to_s >  _3.to_s }
+    define('ge') { _2.to_s >= _3.to_s }
+    define('eq') { _2.to_s == _3.to_s }
+    define('ne') { _2.to_s != _3.to_s }
+    define('cmp') { _2.to_s <=> _3.to_s }
+    define('substr') { _2.to_s[_3.to_i, _4.to_i] }
+    define('strlen') { _2.to_s.length }
+    define('ord') { _2.to_s.ord }
+
+    ## ARRAY METHODS
+    define('[]') { Scalar.new [] }
+    define('get') { _2.to_a[_3.to_i] }
+    define('set', push: false) { _2.to_a[_3.to_i] = _4 }
+    define('del') { _2.to_a.delete_at _3.to_i }
+    define('len') { _2.to_a.length }
+
+    ## VARIABLE METHODS
+    define('fetch') { _1.fetch_variable _2.to_s }
+    define('var') { Variable.new _2.to_s }
+
+    ## BLOCK METHODS
+    define('wrap') { Group.new _1.pop(_2.to_i), SourceLocation.new("<constructed>", 1) }
+    define 'unwrap' do 
+      raise RunError, "#{_2.class} is not a Group" unless _2.is_a? Group
+      _2.body
+    end
+
+    define('call', push: false) do 
+      T.cast(_2, T.any(NativeFunction, Group)).call _1 
+    end
+
+    ## STACK MANIPULATION
+    define('dupn') { stack1.fetch -_2.to_i }
+    define('popn', push: false) { _1.stack1.delete_at -_2.to_i }
+    define('dbga', push: false) { pp _1.stack1 }
+    define('dbgb', push: false) { pp _1.stack2 }
+    define('a2b', push: false) { _1.stack2.push _2 }
+    define('b2a') { _1.stack2.pop }
+    define('stacklen') { _1.stack1.length }
+
+    ## I/O METHODS
+    define('quit') { exit _2.to_i }
+    define('warn', push: false) { warn _2.to_s }
+    define('print', push: false) { print _2 }
+    define('println', push: false) { print _2, "\n" }
+    define('getline'){ gets.chomp }
+    define('system'){ `#{_2}` }
+    define('read-file') { File.read _2.to_s }
+
+    ## VARIABLE MANIPULATION
+    define('undef', push: false) { _1.delete_variable _2.to_s }
+    define('def', push: false) { _1.define_variable _2.to_s, _3 }
+    define('def?') { _1.variable_defined? _2.to_s }
+
+    ## MISC METHODS
+    define('kindof') { _2.class.to_s }
+    define('import', push: false) do
+      Stick.play File.read(filename = _2.to_s), filename, env: _1
+    end
+=begin
+    ## METHODS THAT COULD BE DEFINED NATIVELY
+    define('1+') { _2.to_i + 1 }
+    define('1-') { _2.to_i - 1 }
+    define('2+') { _2.to_i + 2 }
+    define('2-') { _2.to_i - 2 }
+    define('odd?') { _2.to_i.odd? }
+    define('even?') { _2.to_i.even? }
+    define('zero?') { _2.to_i.zero? }
+    define('nonzero?') { _2.to_i.nonzero? }
+    define('dup') { _1.stack1.fetch -1 }
+    define('dup2') { _1.stack1.fetch -2 }
+    define('dup3') { _1.stack1.fetch -3 }
+    define('dup4') { _1.stack1.fetch -4 }
+    define('dupb') { _1.stack2.fetch -1 }
+    define('dup2b') { _1.stack2.fetch -2 }
+    define('pop', push: false) { _1.stack1.delete_at -1 }
+    define('pop2', push: false) { _1.stack1.delete_at -2 }
+    define('pop3', push: false) { _1.stack1.delete_at -3 }
+    define('pop4', push: false) { _1.stack1.delete_at -4 }
+    define('popb', push: false) { _1.stack2.delete_at -1 }
+    define('pop2b', push: false) { _1.stack2.delete_at -2 }
+    define('swap', push: false) { _1.stack1.concat [_3, _2] }
+#:swap { 2 rotn } def
+#:rot { 3 rotn } def
+#:rot* { rot rot } def
+#:rot4 { 4 rotn } def
+#:rot4* { rot4 rot4 rot4 } def
+#:rot5 { 5 rotn } def
+#:rot5* { rot5 rot5 rot5 rot5 } def
+#:rotn { dup a2b dupn b2a 1+ popn } def
+    define('void', push: false) { }
+    define('{}') { Group.new [], SourceLocation.new("<constructed>", 1) }
+    define('!!') { !(_2).truthy? }
+    define('|') { (_2).truthy? || (_3).truthy? }
+    define('||') { (_2).truthy? ? _2 : _3.call }
+    define('&') { (_2).truthy? && (_3).truthy? }
+    define('&&') { (_2).truthy? ? _3.call : _2 }
+    define('if') { ((_2).truthy? ? _3 : _4).call }
+    define('ifl') { (_2).truthy? ? _3 : _4 }
+    define('while') { _3.call while (_2).truthy? }
+    define('println', push: false) { print _2, "\n" }
+# :alias { fetch def } def
+    define('abort') { abort _2.to_s }
+    define('die') { abort _2.to_s }
+# :defl { 1 wrap def } def
+    define('true') { 1 }
+    define('false') { 0 }
+    define('chars') { _2.chars.map { |x| Scalar.new x } }
+    define('str-contains') { _3.to_s.include? _2.to_s[0] }
+    define('apush') { _2.to_a.push _3 }
+
+# :implode {
+#   [] 
+#   { dup2 } { dup dup3 3 + rotn apush swap 1- swap } while
+#   pop2
+# } def
+# :explode {
+#   0
+#   { dup2 len dup2 ≠ } { dup2 dup2 get rot* 1+ } while
+#   pop pop
+# } def
+# 
+# :[ { stacklen a2b } def
+# :] { stacklen b2a - implode } def
+# 
+# :range {
+#   swap [] rot*
+#   { dup2 dup2 ≥ } { dup3 dup2 apush 1+ } while
+#   pop pop
+# } def
+# :times { 1- 0 swap range } def
+# :rev {
+#   []
+#   { dup2 len dup2 len ≠ } {
+#     dup dup3 dup
+#     len dup3 len - 1-
+#     get apush
+#   } while
+#   pop2
+# } def 
+# 
+# ( :map {
+#   swap []
+#   { dup2 len dup2 len ≠ } { dup dup3 dup2 len get 5 dupn call apush } while
+#   pop2 pop2
+# } def )
+# :map {
+#   swap []
+#   { dup2 len dup2 len ≠ } {
+#     dup dup3 dup2 len get 5 dupn
+#     ( push everything we have onto the saved stack )
+#     6 rotn a2b 5 rotn a2b rot4 a2b rot a2b
+#     call
+#     ( remove everything from the saved stack )
+#     b2a swap b2a swap b2a rot4* b2a rot5*
+#     apush
+#   } while
+#   pop2 pop2
+# } def
+# 
+# :foreach {
+#   swap 0
+#   { dup2 len dup2 ≠ } { dup2 dup2 get dup4 call 1+ } while
+#   pop pop
+# } def
+# :reduce {
+#   rot* 0 swap
+#   { dup2 dup4 len ≠ } { dup3 dup3 get 5 dupn call swap 1+ swap } while
+#   pop2 pop2 pop2
+# } def
+# :filter {
+#   swap [] 0
+#   { dup dup4 len ≠ } {
+#     dup2 dup4 dup3 get
+#     dup 7 dupn call
+#     { apush } { pop pop } if
+#     1+
+#   } while
+#   pop pop2 pop2
+# } def
+# 
+# :sum { 0 { + } reduce } def
+# :prod { 1 { * } reduce } def
+# 
+# :any? { map sum } def
+# 
+# 
+# :=> :void alias
+# :default { { pop true } } def ( note this is a `defl` )
+# :switch { switchl call } def
+# :switchl {
+#   swap 0
+#   { dup3 len dup2 > } {
+#     dup2 dup4 dup3 get call
+#     { pop2 1+ get [] swap 0 } { 2+ } if
+#   } while
+#   pop pop2
+# } def
+# 
+=end
   end
 end

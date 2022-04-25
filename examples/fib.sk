@@ -5,4 +5,4 @@
 	{ 1- dup fib swap 1- fib + } &&
 } def
 
-20 fib dbga
+20 fib println

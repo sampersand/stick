@@ -1,7 +1,7 @@
-# typed: ignore
+# typed: strict
 require 'sorbet-runtime'
-require_relative 'stick'
 require_relative 'types'
+require_relative 'error'
 
 return if defined? Stick::Parser
 
@@ -52,6 +52,7 @@ module Stick
         last_source_location = source_location
 
         while tkn = self.next
+          last_source_location = source_location
           acc.push tkn
         end
 
@@ -121,7 +122,7 @@ module Stick
         source = source_location
         catch :close do
           loop do
-            body.push self.next || break
+            body.push self.next || parse_error("unmatched `{`", source)
           end
         end
         Group.new body, source

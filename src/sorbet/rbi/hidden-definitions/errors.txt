@@ -2560,34 +2560,6 @@
 # uninitialized constant VERSION
 # uninitialized constant SingleForwardable
 # uninitialized constant SingleForwardable
-# wrong constant name <Class:UnknownVariable>
-# wrong constant name callstack
-# wrong constant name define_variable
-# wrong constant name delete_variable
-# wrong constant name fetch_variable
-# wrong constant name initialize
-# wrong constant name pop
-# wrong constant name popn
-# wrong constant name push
-# wrong constant name stack1
-# wrong constant name stack2
-# wrong constant name variable_defined?
-# wrong constant name with_stackframe
-# wrong constant name initialize
-# wrong constant name name
-# wrong constant name <static-init>
-# wrong constant name define
-# wrong constant name <Class:ParseError>
-# wrong constant name initialize
-# wrong constant name parse
-# wrong constant name source_location
-# wrong constant name <static-init>
-# wrong constant name <static-init>
-# wrong constant name file
-# wrong constant name initialize
-# wrong constant name line
-# wrong constant name to_s
-# wrong constant name <static-init>
 # wrong constant name ext
 # wrong constant name pathmap
 # wrong constant name pathmap_explode
