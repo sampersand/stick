@@ -1,44 +1,26 @@
-# typed: strict
-require 'sorbet-runtime'
-
 module Stick
   class Environment
-    extend T::Sig
-
     class UnknownVariable < RunError
-      extend T::Sig
-
-      sig{ returns(String) }
       attr_reader :name
 
-      sig{ params(name: String, callstack: T::Array[SourceLocation]).void }
       def initialize(name, callstack)
         super "undefined variable #{name.inspect}", callstack
         @name = name
       end
     end
 
-    DEFAULT_VARIABLES = T.let({}, T::Hash[String, NativeFunction])
+    DEFAULT_VARIABLES = {}
 
-    sig{ returns(T::Array[Value]) }
-    attr_reader :stack1
+    attr_reader :stack1, :stack2, :variables
 
-    sig{ returns(T::Array[Value]) }
-    attr_reader :stack2
-
-    sig{ returns(T::Hash[String, Value]) }
-    attr_reader :variables
-
-    sig{ void }
     def initialize
-      @stack1 = T.let [], T::Array[Value]
-      @stack2 = T.let [], T::Array[Value]
-      @variables = T.let DEFAULT_VARIABLES.dup, T::Hash[String, Value]
+      @stack1 = []
+      @stack2 = []
+      @variables = DEFAULT_VARIABLES.dup
 
-      @callstack = T.let [], T::Array[SourceLocation]
+      @callstack = []
     end
 
-    sig{ params(frame: SourceLocation, block: T.proc.void).void }
     def with_stackframe(frame, &block)
       @callstack.push frame
       block.call
@@ -46,62 +28,38 @@ module Stick
       @callstack.pop
     end
 
-    sig{ params(value: Value).void }
     def push(value) = @stack1.push(value)
-
-    sig{ params(a: T.untyped).returns(T::Array[Value]) }
-    def pop(*a) = T.unsafe(@stack1).pop(*a)
-
-    sig{ params(n: Integer).returns(Value) }
+    def pop(...) = @stack1.pop(...)
     def popn(n)
       @stack1.delete_at(~n) or raise RunError, "pop out of bounds, max #{@stack1.length}, given #{n}"
     end
 
-    sig{ params(name: String).returns(T.nilable(Value)) }
     def delete_variable(name)
       @variables.delete name.to_s
     end
 
-    sig{ params(name: String, value: Value).void }
     def define_variable(name, value)
       @variables[name.to_s] = value
     end
 
-    sig{ params(name: String).returns(T::Boolean) }
     def variable_defined?(name)
       @variables.include? name.to_s
     end
 
-    sig{ returns(T::Array[SourceLocation]) }
     def callstack = @callstack.clone
 
-    sig{ params(name: String).returns(Value) }
     def fetch_variable(name)
       @variables.fetch (name=name.to_s) do
         raise UnknownVariable.new name, callstack
       end
     end
 
-    sig{
-      params(
-        name: String,
-        kw: T::Boolean,
-        block: T.proc.params(a: Environment, b: Value, c: Value, d: Value)
-          .returns(T.any(Integer, String, T::Array[Value], T::Boolean, Value))
-      ).void
-    }
-    def self.define(name, **kw, &block)
-      DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, **kw, &block)
+    def self.define(name, ...)
+      DEFAULT_VARIABLES[name] = Stick::NativeFunction.new(name, ...)
     end
 
-    sig{
-      params(
-        name: String,
-        block: T.proc.params(a: Environment, b: Value, c: Value, d: Value).void
-      ).void
-    }
     def self.define_with_env(name, &block)
-      DEFAULT_VARIABLES[name] = T.unsafe(Stick::NativeFunction).new(name, push: false, &block)
+      DEFAULT_VARIABLES[name] = Stick::NativeFunction.new(name, push: false, &block)
     end
 
     ## BOOLEAN METHOD
@@ -137,17 +95,17 @@ module Stick
     define('ge') { _2.to_s >= _3.to_s }
     define('eq') { _2.to_s == _3.to_s }
     define('ne') { _2.to_s != _3.to_s }
-    define('cmp') { T.must _2.to_s <=> _3.to_s }
+    define('cmp') { _2.to_s <=> _3.to_s }
     define('substr') { _2.to_s[_3.to_i, _4.to_i] || "" }
     define('strlen') { _2.to_s.length }
     define('ord') { _2.to_s.ord }
 
     ## ARRAY METHODS
     define('[]') { _1; List.new }
-    define('get') { T.cast(_2, List).to_a.fetch _3.to_i }
-    define('set', push: false) { T.cast(_2, List)[_3.to_i] = _4 }
-    define('del') { T.cast(_2, List).delete_at(_3.to_i) || '' }
-    define('len') { T.cast(_2, List).length }
+    define('get') { _2.to_a.fetch _3.to_i }
+    define('set', push: false) { _2[_3.to_i] = _4 }
+    define('del') { _2.delete_at(_3.to_i) || '' }
+    define('len') { _2.length }
 
     ## VARIABLE METHODS
     define('fetch') { _1.fetch_variable _2.to_s }
@@ -161,7 +119,7 @@ module Stick
     end
 
     define('call', push: false) do 
-      T.cast(_2, T.any(NativeFunction, Group)).call _1
+      _2.call _1
       0
     end
 

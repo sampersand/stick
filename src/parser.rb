@@ -1,37 +1,24 @@
-# typed: strict
-require 'sorbet-runtime'
 require_relative 'types'
 require_relative 'error'
 
 return if defined? Stick::Parser
 
 module Stick
-  class SourceLocation < T::Struct
-    extend T::Sig
-
-    const :filename, String
-    const :lineno, Integer
-
-    sig{ returns(String) }
+  SourceLocation = Struct.new :filename, :lineno do
     def to_s = "#{filename}:#{lineno}"
   end
 
   class Parser
-    extend T::Sig
-
     class ParseError < Error; end
 
-    sig{ params(stream: String, filename: String).void }
     def initialize(stream, filename)
       @stream = stream
       @filename = filename
-      @lineno = T.let(1, Integer)
+      @lineno = 1
     end
 
-    sig{ returns(SourceLocation) }
     def source_location = SourceLocation.new(filename: @filename, lineno: @lineno)
 
-    sig{ returns(Group) }
     def parse
       last_source_location = begin_source_location = source_location
 
@@ -52,20 +39,17 @@ module Stick
 
     private
 
-    sig{ returns(T.nilable(String)) }
     def next_word
       @lineno += @stream.slice!(/\A\s*/)&.count("\n") || 0
       @stream.slice!(/\A(\\\n\s*|\S)+/)&.gsub(/\\\n\s*/, '')
     end
 
-    sig{ params(message: String, source: SourceLocation).returns(T.noreturn) }
     def parse_error(message, source=source_location)
       raise ParseError, "#{source}: #{message}", caller(1)
     end
 
     # We need `next` as we `throw :close` to indicate group end,
     # and we don't want to have an uncaught `throw` leaking out.
-    sig{ returns(T.nilable(Value)) }
     def next
       case token = next_word
 
@@ -87,7 +71,7 @@ module Stick
         self.next
 
       # `:foobar` is shorthand for `"foobar"`, but without escapes.
-      when /^:(?!$)/ then Scalar.new T.must $'
+      when /^:(?!$)/ then Scalar.new $'
 
       # Stick only has integers for numbers: no floats
       when /^[-+]?\d+$/ then Scalar.new $&.to_i

@@ -20,6 +20,21 @@ end
 
 env = Stick::Environment.new
 
+Stick.play <<EOS, env: env
+"examples/prelude.sk" import
+
+1 { dup 16 < } {
+  dup 15 % {
+    dup 3 % {
+      dup 5 % { dup } { "Buzz" } if
+    } { "Fizz" } if
+  } { "FizzBuzz" } if
+  println
+  1 +
+} while
+EOS
+exit
+
 warn "no input, nothing to run." if to_run.empty?
 to_run.each do |kind, arg|
   case kind
