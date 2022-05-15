@@ -20,3 +20,5 @@ module Stick
     Dir.chdir T.must old_dir if filename
   end
 end
+
+self

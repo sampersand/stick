@@ -6,23 +6,14 @@ require_relative 'error'
 return if defined? Stick::Parser
 
 module Stick
-  class SourceLocation
+  class SourceLocation < T::Struct
     extend T::Sig
 
-    sig{ returns(String) }
-    attr_reader :file
-
-    sig{ returns(Integer) }
-    attr_reader :line
-
-    sig{ params(file: String, line: Integer).void }
-    def initialize(file, line)
-      @file = file
-      @line = line
-    end
+    const :filename, String
+    const :lineno, Integer
 
     sig{ returns(String) }
-    def to_s = "#{file}:#{line}"
+    def to_s = "#{filename}:#{lineno}"
   end
 
   class Parser
@@ -38,10 +29,7 @@ module Stick
     end
 
     sig{ returns(SourceLocation) }
-    def source_location
-      SourceLocation.new @filename, @lineno
-    end
-
+    def source_location = SourceLocation.new(filename: @filename, lineno: @lineno)
 
     sig{ returns(Group) }
     def parse
@@ -107,11 +95,7 @@ module Stick
       # Stick only has double quoted strings. Note this syntax also allows for `"foo"bar"`,
       # as strings are closed by whitespace, not `"`.
       when /^"(.*)"$/ then Scalar.new $1.gsub(/\\(?: x(\h\h) | ([^x]) )/ix) { |c|
-        if $1
-          $1.hex.chr
-        else
-          $2.tr %("'srnft0\\), %("'\s\r\n\f\t\0\\)
-        end
+        $1 ? $1.hex.chr : $2.tr("\"\'srnft0\\", "\"\'\s\r\n\f\t\0\\")
       }
 
 

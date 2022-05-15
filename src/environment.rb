@@ -97,7 +97,6 @@ module Stick
     sig{
       params(
         name: String,
-        kw: T::Boolean,
         block: T.proc.params(a: Environment, b: Value, c: Value, d: Value).void
       ).void
     }
@@ -155,7 +154,7 @@ module Stick
     define('var') { Variable.new _2.to_s }
 
     ## BLOCK METHODS
-    define('wrap') { Group.new _1.stack1.pop(_2.to_i), SourceLocation.new("<constructed>", 1) }
+    define('wrap') { Group.new _1.stack1.pop(_2.to_i), SourceLocation.new(filename: "<constructed>", lineno: 1) }
     define 'unwrap' do 
       raise RunError, "#{_2.class} is not a Group" unless _2.is_a? Group
       _2.body
