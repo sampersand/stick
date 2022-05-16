@@ -27,7 +27,6 @@ module Stick
     def inspect = @value.inspect
     def to_s = @value.to_s
     def to_i = @value.to_i
-    def truthy? = @value != '0' && @value != '' && @value != 0
   end
 
   class List < Value

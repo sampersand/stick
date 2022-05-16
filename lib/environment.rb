@@ -55,17 +55,13 @@ module Stick
     end
 
     def self.define(name, ...)
+      name = name.to_s
       DEFAULT_VARIABLES[name] = Stick::NativeFunction.new(name, ...)
     end
 
-    def self.define_with_env(name, &block)
-      DEFAULT_VARIABLES[name] = Stick::NativeFunction.new(name, push: false, &block)
-    end
-
     ## BOOLEAN METHOD
-    define '!', '_' do |scalar|
-      raise RunError, "#{scalar.class} is not a scalar" unless scalar.is_a? Scalar
-      !scalar.truthy?
+    define '!', 's' do |scalar|
+      scalar != '0' && scalar != ''
     end
 
     ## NUMBER METHODS
@@ -105,21 +101,13 @@ module Stick
       List.new
     end
 
-    define 'get', 'li' do |list, index|
-      list.fetch index
-    end
-
-    define 'set', 'li_', push: false do |list, index, value|
-      list[index] = value
-    end
-
+    define('get', 'li', &:fetch)
+    define('set', 'li_', push: false, &:[]=)
     define 'del', 'li' do |list, index|
       list.delete_at(index) || ''
     end
 
-    define 'len', 'l' do |list|
-      list.length
-    end
+    define('len', 'l', &:length)
 
     ## VARIABLE METHODS
     define('fetch', 's', env: true) { _2.fetch_variable _1 }
@@ -135,9 +123,7 @@ module Stick
       group.body
     end
 
-    define 'call', '_', env: true, push: false do |block, env|
-      block.call env
-    end
+    define('call', '_', env: true, push: false, &:call)
 
     ## STACK MANIPULATION
     define('dupn', 'i', env: true) { _2.stack1.fetch -_1 }

@@ -23,6 +23,7 @@ env = Stick::Environment.new
 Stick.play <<EOS, env: env
 "examples/prelude.sk" import
 
+[ 1 2 3 ] 4 del println 0 quit
 1 { dup 16 < } {
   dup 15 % {
     dup 3 % {
