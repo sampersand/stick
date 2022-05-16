@@ -64,8 +64,8 @@ module Stick
     end
 
     ## BOOLEAN METHOD
-    define :!, 's' do |scalar|
-      scalar != '0' && scalar != ''
+    define :!, 's' do |string|
+      string.empty? || string == '0'
     end
 
     ## NUMBER METHODS
@@ -102,7 +102,7 @@ module Stick
 
     ## ARRAY METHODS
     define :[], '' do
-      List.new
+      []
     end
 
     define :get, 'li', env: true do |list, index, env|
@@ -173,8 +173,8 @@ module Stick
     ## MISC METHODS
     define :kindof, '_' do |variable|
       case variables
-      when Scalar then 'scalar'
-      when List then 'list'
+      when String, Integer then 'scalar'
+      when Array then 'array'
       when NativeFunction then 'native-function'
       when Group then 'group'
       when Variable then fail "shouldn't be able to get the kindof a variable?"

@@ -1,56 +1,33 @@
+module Value
+  def run(env) = env.push(self)
+
+  module_function def from(value)
+    case value
+    when true then 1
+    when false then 0
+    when nil then ''
+    when Value then value
+    else raise "invalid value: #{value}"
+    end
+  end
+end
+
+class Integer
+  include Value
+end
+
+class String
+  include Value
+end
+
+class Array
+  include Value
+end
+
 module Stick
-  # Generic value type
-  class Value
-    def self.from(value)
-      case value
-      when true then Scalar.new 1
-      when false then Scalar.new 0
-      when Integer, String then Scalar.new value
-      when Array then List.new value
-      when Value then value
-      else raise TypeError, "invalid value type: #{value.class}"
-      end
-    end
+  class NativeFunction
+    include Value
 
-    def run(env) = env.push(self)
-
-    def to_s = raise("#{__method__} undefined for #{self.class}")
-    def to_i = raise("#{__method__} undefined for #{self.class}")
-    def to_a = raise("#{__method__} undefined for #{self.class}")
-  end
-
-  class Scalar < Value
-    def initialize(value)
-      @value = value
-    end
-
-    def inspect = @value.inspect
-    def to_s = @value.to_s
-    def to_i = @value.to_i
-  end
-
-  class List < Value
-    attr_accessor :elements
-
-    def initialize(elements=[])
-      @elements = elements
-    end
-
-    def inspect = @elements.inspect
-    def to_s = @elements.to_s
-
-    alias to_a elements
-
-    def [](idx) = @elements[idx]
-    def []=(idx, value)
-      @elements[idx] = value
-    end
-
-    def delete_at(idx) = @elements.delete_at(idx)
-    def length = @elements.length
-  end
-
-  class NativeFunction < Value
     attr_reader :name
 
     def initialize(name, casts, push: true, env: false, &code)
@@ -85,7 +62,9 @@ module Stick
     end
   end
 
-  class Group < Value
+  class Group
+    include Value
+
     attr_reader :body, :location
 
     def initialize(body, location)
@@ -104,7 +83,9 @@ module Stick
     end
   end
 
-  class Variable < Value
+  class Variable
+    include Value
+
     attr_reader :name
 
     def initialize(name)

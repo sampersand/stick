@@ -70,14 +70,14 @@ module Stick
         next_token
 
       # `:foobar` is shorthand for `"foobar"`, but without escapes.
-      when /^:(?!$)/ then Scalar.new $'
+      when /^:(?!$)/ then $'
 
       # Stick only has integers for numbers: no floats
-      when /^[-+]?\d+$/ then Scalar.new $&.to_i
+      when /^[-+]?\d+$/ then $&.to_i
 
       # Stick only has double quoted strings. Note this syntax also allows for `"foo"bar"`,
       # as strings are closed by whitespace, not `"`.
-      when /^"(.*)"$/ then Scalar.new $1.gsub(/\\(?: x(\h\h) | ([^x]) )/ix) { |c|
+      when /^"(.*)"$/ then $1.gsub(/\\(?: x(\h\h) | ([^x]) )/ix) { |c|
         $1 ? $1.hex.chr : $2.tr("\"\'srnft0\\", "\"\'\s\r\n\f\t\0\\")
       }
 
