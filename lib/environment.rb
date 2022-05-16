@@ -63,61 +63,61 @@ module Stick
     end
 
     ## BOOLEAN METHOD
-    define '!' do
-      raise RunError, "#{_2.class} is not a scalar" unless _2.is_a? Scalar
-      !_2.truthy?
+    define '!' do |scalar|
+      raise RunError, "#{scalar.class} is not a scalar" unless scalar.is_a? Scalar
+      !scalar.truthy?
     end
 
     ## NUMBER METHODS
-    define('~') { -_2.to_i }
-    define('+') { _2.to_i + _3.to_i }
-    define('-') { _2.to_i - _3.to_i }
-    define('*') { _2.to_i * _3.to_i }
-    define('/') { _2.to_i / _3.to_i }
-    define('%') { _2.to_i % _3.to_i }
-    define('^') { Integer _2.to_i ** _3.to_i }
-    define('<') { _2.to_i <  _3.to_i }
-    define('≤') { _2.to_i <= _3.to_i }
-    define('>') { _2.to_i >  _3.to_i }
-    define('≥') { _2.to_i >= _3.to_i }
-    define('=') { _2.to_i == _3.to_i }
-    define('≠') { _2.to_i != _3.to_i }
-    define('<=>') { _2.to_i <=> _3.to_i }
-    define('chr') { _2.to_i.chr }
-    define('rand'){ rand _2.to_i.._3.to_i }
+    define('~') { -_1.to_i }
+    define('+') { _1.to_i + _2.to_i }
+    define('-') { _1.to_i - _2.to_i }
+    define('*') { _1.to_i * _2.to_i }
+    define('/') { _1.to_i / _2.to_i }
+    define('%') { _1.to_i % _2.to_i }
+    define('^') { Integer _1.to_i ** _2.to_i }
+    define('<') { _1.to_i <  _2.to_i }
+    define('≤') { _1.to_i <= _2.to_i }
+    define('>') { _1.to_i >  _2.to_i }
+    define('≥') { _1.to_i >= _2.to_i }
+    define('=') { _1.to_i == _2.to_i }
+    define('≠') { _1.to_i != _2.to_i }
+    define('<=>') { _1.to_i <=> _2.to_i }
+    define('chr') { _1.to_i.chr }
+    define('rand'){ rand _1.to_i.._2.to_i }
 
     ## STRING METHODS
-    define('.') { _2.to_s + _3.to_s }
-    define('x') { _2.to_s * _3.to_i }
-    define('lt') { _2.to_s <  _3.to_s }
-    define('le') { _2.to_s <= _3.to_s }
-    define('gt') { _2.to_s >  _3.to_s }
-    define('ge') { _2.to_s >= _3.to_s }
-    define('eq') { _2.to_s == _3.to_s }
-    define('ne') { _2.to_s != _3.to_s }
-    define('cmp') { _2.to_s <=> _3.to_s }
-    define('substr') { _2.to_s[_3.to_i, _4.to_i] || "" }
-    define('strlen') { _2.to_s.length }
-    define('ord') { _2.to_s.ord }
+    define('.') { _1.to_s + _2.to_s }
+    define('x') { _1.to_s * _2.to_i }
+    define('lt') { _1.to_s <  _2.to_s }
+    define('le') { _1.to_s <= _2.to_s }
+    define('gt') { _1.to_s >  _2.to_s }
+    define('ge') { _1.to_s >= _2.to_s }
+    define('eq') { _1.to_s == _2.to_s }
+    define('ne') { _1.to_s != _2.to_s }
+    define('cmp') { _1.to_s <=> _2.to_s }
+    define('substr') { _1.to_s[_2.to_i, _3.to_i] || "" }
+    define('strlen') { _1.to_s.length }
+    define('ord') { _1.to_s.ord }
 
     ## ARRAY METHODS
-    define '[]' do |_env|
+    define '[]' do
       List.new
     end
 
-    define 'get' do |_env, list, index|
+    define 'get' do |list, index|
       list.to_a.fetch index.to_i
     end
 
-    define 'set', push: false do |_env, list, index|
+    define 'set', push: false do |list, index|
       list[index.to_i] = value
     end
 
-    define 'del' do |env, list, index|
+    define 'del' do |list, index|
       list.delete_at(index.to_i) || ''
     end
 
-    define 'len' do |_env, list|
+    define 'len' do |list|
       list.length
     end
 
@@ -129,61 +129,58 @@ module Stick
     # define('len') { _2.length }
 
     ## VARIABLE METHODS
-    define('fetch') { _1.fetch_variable _2.to_s }
-    define('var') { Variable.new _2.to_s }
+    define('fetch', env: true) { _1.fetch_variable _2.to_s }
+    define('var') { Variable.new _1.to_s }
 
     ## BLOCK METHODS
-    define('wrap') { Group.new _1.stack1.pop(_2.to_i), SourceLocation.new("<constructed>", 1) }
-    define 'unwrap' do 
-      raise RunError, "#{_2.class} is not a Group" unless _2.is_a? Group
-      _2.body
+    define 'wrap', env: true do |env, amnt|
+      Group.new env.stack1.pop(amnt.to_i), SourceLocation.new("<constructed>", 1)
     end
 
-    define('call', push: false) do 
-      _2.call _1
-      0
+    define 'unwrap' do |group|
+      raise RunError, "#{group.class} is not a Group" unless group.is_a? Group
+      group.body
+    end
+
+    define 'call', env: true, push: false do |env, block|
+      block.call env
     end
 
     ## STACK MANIPULATION
-    define('dupn') { _1.stack1.fetch -_2.to_i }
-    define('popn', push: false) { _1.stack1.delete_at(-_2.to_i) or fail "got out of bounds" }
-    define('dbga', push: false) { pp _1.stack1 }
-    define('dbgb', push: false) { pp _1.stack2 }
-    define('a2b', push: false) { _1.stack2.push _2 }
-    define('b2a') { _1.stack2.pop or fail "b2a out of bounds" }
-    define('stacklen') { _1.stack1.length }
+    define('dupn', env: true) { _1.stack1.fetch -_2.to_i }
+    define('popn', push: false, env: true) { _1.stack1.delete_at(-_2.to_i) or fail "got out of bounds" }
+    define('dbga', push: false, env: true) { pp _1.stack1 }
+    define('dbgb', push: false, env: true) { pp _1.stack2 }
+    define('a2b', push: false, env: true) { _1.stack2.push _2 }
+    define('b2a', env: true) { _1.stack2.pop or fail "b2a out of bounds" }
+    define('stacklen', env: true) { _1.stack1.length }
 
     ## I/O METHODS
-    define('quit') { exit _2.to_i }
-    define('warn', push: false) { warn _2.to_s; 0 }
-    define('print', push: false) { print _2; 0 }
-    define('println', push: false) { print _2, "\n"; 0 }
+    define('quit') { exit _1.to_i }
+    define('warn', push: false) { warn _1.to_s; }
+    define('print', push: false) { print _1; }
+    define('println', push: false) { print _1, "\n"; }
     define('getline'){ gets.chomp }
-    define('system'){ `#{_2}` }
-    define('read-file') { File.read _2.to_s }
-
-    # ## VARIABLE MANIPULATION
-    # define 'undef', push: false do |name|
-    #   variables.delete name.to_s
-    # end
-
-    # define 'def', push: false do |name, value|
-    #   variables[name.to_s] = value
-    # end
-
-    # define 'def?' do |name|
-    #   variables.include? name.to_s
-    # end
+    define('system'){ `#{_1}` }
+    define('read-file') { File.read _1.to_s }
 
     ## VARIABLE MANIPULATION
-    define('undef', push: false) { _1.variables.delete _2.to_s; 0 }
-    define('def', push: false) { _1.variables[_2.to_s] = _3 }
-    define('def?') { _1.variables.include? _2.to_s }
+    define 'undef', env: true, push: false do |env, name|
+      env.variables.delete name.to_s
+    end
+
+    define 'def', env: true, push: false do |env, name, value|
+      env.variables[name.to_s] = value
+    end
+
+    define 'def?', env: true do |env, name|
+      env.variables.include? name.to_s
+    end
 
     ## MISC METHODS
     define('kindof') { _2.class.to_s }
-    define('import', push: false) do
-      Stick.play File.read(filename = _2.to_s), filename, env: _1
+    define('import', env: true, push: false) do |env, filename|
+      Stick.play File.read(filename = filename.to_s), filename, env: env
     end
   end
 end

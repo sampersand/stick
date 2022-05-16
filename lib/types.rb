@@ -54,17 +54,19 @@ module Stick
   class NativeFunction < Value
     attr_reader :name, :arity
 
-    def initialize(name, push: true, &code)
+    def initialize(name, push: true, env: false, &code)
       @name = name
       @code = code
       @push_result = push
-      @arity = @code.arity - 1 # as it's always passed `env`.
+      @send_env = env
+      @arity = @code.arity - (env ? 1 : 0)
     end
 
     def inspect = "NativeFunction(#{@name.inspect})"
     def call(env)
       args = env.pop(@arity)
-      result = @code.call(env, *args)
+      args.unshift env if @send_env
+      result = @code.call(*args)
       env.push Value.from result if @push_result
     end
   end
