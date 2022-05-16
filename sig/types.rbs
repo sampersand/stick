@@ -1,0 +1,78 @@
+module Stick
+  # Generic value type
+  class Value
+    def self.from: (untyped value) -> untyped
+
+    def run: (untyped env) -> untyped
+
+    def to_s: () -> untyped
+
+    def to_i: () -> untyped
+
+    def to_a: () -> untyped
+  end
+
+  class List < Value
+    attr_accessor elements: untyped
+
+    def initialize: (?untyped elements) -> void
+
+    def inspect: () -> untyped
+
+    def to_s: () -> untyped
+
+    alias to_a elements
+
+    def []: (untyped idx) -> untyped
+
+    def []=: (untyped idx, untyped value) -> untyped
+
+    def delete_at: (untyped idx) -> untyped
+
+    def length: () -> untyped
+  end
+
+  class Scalar < Value
+    def initialize: (untyped value) -> void
+
+    def inspect: () -> untyped
+
+    def to_s: () -> untyped
+
+    def to_i: () -> untyped
+
+    def truthy?: () -> untyped
+  end
+
+  class NativeFunction < Value
+    attr_reader name: untyped
+
+    def initialize: (untyped name, ?push: bool) { () -> untyped } -> void
+
+    def inspect: () -> ::String
+
+    def call: (untyped env) -> untyped
+  end
+
+  class Group < Value
+    attr_reader body: untyped
+
+    attr_reader source_location: untyped
+
+    def initialize: (untyped body, untyped source_location) -> void
+
+    def inspect: () -> ::String
+
+    def call: (untyped env) -> untyped
+  end
+
+  class Variable < Value
+    attr_reader name: untyped
+
+    def initialize: (untyped name) -> void
+
+    def inspect: () -> ::String
+
+    def run: (untyped env) -> untyped
+  end
+end

@@ -1,0 +1,12 @@
+module Stick
+  class Error < RuntimeError
+  end
+
+  class RunError < Error
+    attr_reader backtrace: untyped
+
+    def initialize: (untyped message, untyped backtrace) -> void
+
+    def full_message: () -> untyped
+  end
+end

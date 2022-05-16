@@ -1,0 +1,41 @@
+module Stick
+  class Environment
+    class UnknownVariable < RunError
+      attr_reader name: untyped
+
+      def initialize: (untyped name, untyped callstack) -> void
+    end
+
+    DEFAULT_VARIABLES: ::Hash[untyped, untyped]
+
+    attr_reader stack1: untyped
+
+    attr_reader stack2: untyped
+
+    attr_reader variables: untyped
+
+    def initialize: () -> void
+
+    def with_stackframe: (untyped frame) { () -> untyped } -> untyped
+
+    def push: (untyped value) -> untyped
+
+    def pop: (*untyped) ?{ () -> untyped } -> untyped
+
+    def popn: (untyped n) -> untyped
+
+    def delete_variable: (untyped name) -> untyped
+
+    def define_variable: (untyped name, untyped value) -> untyped
+
+    def variable_defined?: (untyped name) -> untyped
+
+    def callstack: () -> untyped
+
+    def fetch_variable: (untyped name) -> untyped
+
+    def self.define: (untyped name, *untyped) ?{ () -> untyped } -> untyped
+
+    def self.define_with_env: (untyped name) { () -> untyped } -> untyped
+  end
+end

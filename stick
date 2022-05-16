@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require_relative 'src/stick'
+require_relative 'lib/stick'
 require 'optparse'
 
 to_run = []

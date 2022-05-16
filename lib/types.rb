@@ -1,7 +1,3 @@
-require_relative 'stick'
-
-return if defined? Stick::Value
-
 module Stick
   # Generic value type
   class Value
@@ -21,6 +17,17 @@ module Stick
     def to_s = raise("#{__method__} undefined for #{self.class}")
     def to_i = raise("#{__method__} undefined for #{self.class}")
     def to_a = raise("#{__method__} undefined for #{self.class}")
+  end
+
+  class Scalar < Value
+    def initialize(value)
+      @value = value
+    end
+
+    def inspect = @value.inspect
+    def to_s = @value.to_s
+    def to_i = @value.to_i
+    def truthy? = @value != '0' && @value != '' && @value != 0
   end
 
   class List < Value
@@ -44,28 +51,17 @@ module Stick
     def length = @elements.length
   end
 
-  class Scalar < Value
-    def initialize(value)
-      @value = value
-    end
-
-    def inspect = @value.inspect
-    def to_s = @value.to_s
-    def to_i = @value.to_i
-    def truthy? = @value != '0' && @value != '' && @value != 0
-  end
-
   class NativeFunction < Value
-    attr_reader :name
+    attr_reader :name, :arity
 
     def initialize(name, push: true, &code)
       @name = name
       @code = code
       @push_result = push
-      @arity = @code.arity - 1
+      @arity = @code.arity - 1 # as it's always passed `env`.
     end
 
-    def inspect = "NativeFunction(#@name)"
+    def inspect = "NativeFunction(#{@name.inspect})"
     def call(env)
       args = env.pop(@arity)
       result = @code.call(env, *args)
@@ -74,17 +70,17 @@ module Stick
   end
 
   class Group < Value
-    attr_reader :body, :source_location
+    attr_reader :body, :location
 
-    def initialize(body, source_location)
+    def initialize(body, location)
       @body = body
-      @source_location = source_location
+      @location = location
     end
 
-    def inspect = "Group(#@source_location, #@body)"
+    def inspect = "Group(#@location)"
 
     def call(env)
-      env.with_stackframe @source_location do
+      env.with_stackframe @location do
         @body.each do |obj|
           obj.run env
         end
@@ -99,7 +95,7 @@ module Stick
       @name = name
     end
 
-    def inspect = "Variable(#@name)"
+    def inspect = "Variable(#{@name.inspect})"
 
     def run(env)
       env.fetch_variable(@name).call(env)

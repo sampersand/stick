@@ -1,0 +1,30 @@
+module Stick
+  class SourceLocation
+    attr_reader filename: String
+    attr_reader lineno: Integer
+
+    def initialize: (String filename, Integer lineno) -> void
+    def to_s: () -> String
+  end
+
+  class Parser
+    class ParseError < Error
+    end
+
+    def initialize: (String stream, String filename) -> void
+
+    def source_location: () -> SourceLocation
+
+    def parse: () -> untyped
+
+    private
+
+    def next_word: () -> untyped
+
+    def parse_error: (untyped message, ?untyped source) -> untyped
+
+    # We need `next` as we `throw :close` to indicate group end,
+    # and we don't want to have an uncaught `throw` leaking out.
+    def next: () -> untyped
+  end
+end

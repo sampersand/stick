@@ -1,0 +1,5 @@
+module Stick
+  VERSION: "0.1"
+
+  def self?.play: (untyped code, ?untyped? filename, env: untyped) -> untyped
+end
