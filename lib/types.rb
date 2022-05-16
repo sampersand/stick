@@ -73,6 +73,7 @@ module Stick
         when 'i' then arg.to_i
         when 's' then arg.to_s
         when 'l' then arg.to_a
+        when 'g' then arg
         when '_' then arg
         else raise "unknown cast: #{cast}"
         end
