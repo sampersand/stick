@@ -52,20 +52,34 @@ module Stick
   end
 
   class NativeFunction < Value
-    attr_reader :name, :arity
+    attr_reader :name
 
-    def initialize(name, push: true, env: false, &code)
+    def initialize(name, casts, push: true, env: false, &code)
       @name = name
       @code = code
       @push_result = push
       @send_env = env
-      @arity = @code.arity - (env ? 1 : 0)
+      @casts = casts.chars
+    end
+
+    def arity
+      @casts.length
     end
 
     def inspect = "NativeFunction(#{@name.inspect})"
+
     def call(env)
-      args = env.pop(@arity)
-      args.unshift env if @send_env
+      args = env.pop(arity).zip(@casts).map do |arg, cast|
+        case cast
+        when 'i' then arg.to_i
+        when 's' then arg.to_s
+        when 'l' then arg.to_a
+        when '_' then arg
+        else raise "unknown cast: #{cast}"
+        end
+      end
+
+      args.push env if @send_env
       result = @code.call(*args)
       env.push Value.from result if @push_result
     end
