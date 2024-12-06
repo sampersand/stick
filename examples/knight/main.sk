@@ -3,7 +3,20 @@
 "./env.sk" import
 "./function.sk" import
 
-println
+:q { 0 quit } def
+
+1 2 [ 3 4 5 ] rev dbga q
+10 new-num to-ary
+dbga q
+
+0 quit
+";=fB:I<n:2n;=n-nT;=n-n;=tCf:1+tCf;=n:10O:Cf" play
+
+0 quit
+; = n 10
+: OUTPUT CALL f
+"
+
 # ";=n\s20;=a\s0;=fB:I>2n:n;=+'_'a:=n-nT;=a+aT+Cf;=n-V+'_'=a-aT1CfO:Cf" play
 ( "\
 ;=n:20\

@@ -4,7 +4,7 @@
 :advance { dup strlen 1 swap substr } def
 :peek-advance { peek swap advance swap } def
 
-:isspace { "\s\r\n\t\f(){}[]:" str-contains } def
+:isspace { "\s\r\n\t\f():" str-contains } def
 :isdigit { dup "0" ge { "9" le } { pop false } if } def
 
 :islower {

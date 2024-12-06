@@ -56,7 +56,7 @@
 	] switch print
 } def
 
-:run { rev explode run' } def
+:run { dbga rev explode run' } def
 :run' {
 	[
 	 	NUM =` => { new-num }
