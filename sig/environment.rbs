@@ -34,8 +34,8 @@ module Stick
 
     def fetch_variable: (untyped name) -> untyped
 
-    def self.define: (untyped name, *untyped) ?{ () -> untyped } -> untyped
+    def error: (untyped message) -> untyped
 
-    def self.define_with_env: (untyped name) { () -> untyped } -> untyped
+    def self.define: [T] (String name, ...) { T } 
   end
 end

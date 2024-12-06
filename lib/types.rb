@@ -7,7 +7,7 @@ module Value
     when false then 0
     when nil then ''
     when Value then value
-    else raise "invalid value: #{value}"
+    else raise TypeError, "invalid type: #{value.class}"
     end
   end
 end

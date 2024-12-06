@@ -3,10 +3,9 @@ module Stick
   end
 
   class RunError < Error
-    attr_reader backtrace: untyped
+    attr_reader backtrace: Array[SourceLocation]
 
-    def initialize: (untyped message, untyped backtrace) -> void
-
-    def full_message: () -> untyped
+    def initialize: (String message, Array[SourceLocation] backtrace) -> void
+    def full_message: () -> String
   end
 end

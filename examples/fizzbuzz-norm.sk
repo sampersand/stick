@@ -1,6 +1,17 @@
 "prelude.sk" import
 
 :fizzbuzz {
+	1
+	{
+		dup2 dup2 >
+	} {
+		dup 3 % ! { "Fizz" print } &&
+		dup 5 % ! { "Buzz" print } &&
+		dup 3 % dup2 5 % * { dup print } &&
+		"" println
+		1+
+	} while
+	0 quit
 	1 swap range {
 		dup [
 			{ 15 % ! } => { pop "FizzBuzz" }

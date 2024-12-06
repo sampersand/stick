@@ -1,5 +1,5 @@
 module Stick
   VERSION: "0.1"
 
-  def self?.play: (untyped code, ?untyped? filename, env: untyped) -> untyped
+  def self?.play: (Sring code, ?String? filename, ?env: Environment) -> Value
 end

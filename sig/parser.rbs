@@ -4,7 +4,9 @@ module Stick
     attr_reader lineno: Integer
 
     def initialize: (String filename, Integer lineno) -> void
+
     def to_s: () -> String
+    def error: (String message) -> bot
   end
 
   class Parser
@@ -12,19 +14,12 @@ module Stick
     end
 
     def initialize: (String stream, String filename) -> void
-
-    def source_location: () -> SourceLocation
-
-    def parse: () -> untyped
+    def location: () -> SourceLocation
+    def parse: () -> Group
 
     private
 
-    def next_word: () -> untyped
-
-    def parse_error: (untyped message, ?untyped source) -> untyped
-
-    # We need `next` as we `throw :close` to indicate group end,
-    # and we don't want to have an uncaught `throw` leaking out.
-    def next: () -> untyped
+    def next_word: () -> String?
+    def next_token: () -> Value?
   end
 end

@@ -183,7 +183,7 @@ module Stick
     end
 
     define :import, 's', env: true, push: false do |filename, env|
-      contents = File.read filename rescue raise RunError, "unknown file #{filename}"
+      contents = File.read filename rescue raise RunError.new("unknown file #{filename}", caller)
 
       Stick.play contents, filename, env: env
     end

@@ -17,3 +17,4 @@ module Stick
 end
 
 self
+

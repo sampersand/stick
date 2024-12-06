@@ -3,8 +3,8 @@
 "./env.sk" import
 "./function.sk" import
 
-
-";=n:20;=a:0;=fB:I>2n:n;=+'_'a:=n-nT;=a+aT+Cf;=n-V+'_'=a-aT1CfO:Cf" play
+println
+# ";=n\s20;=a\s0;=fB:I>2n:n;=+'_'a:=n-nT;=a+aT+Cf;=n-V+'_'=a-aT1CfO:Cf" play
 ( "\
 ;=n:20\
 ;=a:0\

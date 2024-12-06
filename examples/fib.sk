@@ -1,4 +1,4 @@
-( "prelude.sk" import )
+"prelude.sk" import
 
 :fib {
 	dup 1 >
